@@ -13,7 +13,7 @@ DS.MemoryAdapter = DS.Adapter.extend({
     return RSVP.resolve(this.cache[Ember.guidFor(type)][id]);
   },
 
-  create: function(type, record) {
+  materialize: function(type, record) {
     this.cache[Ember.guidFor(type)] = this.cache[Ember.guidFor(type)] || {};
 
     this.cache[Ember.guidFor(type)][record.id] = record;

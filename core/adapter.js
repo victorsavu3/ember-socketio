@@ -19,8 +19,8 @@ DS.Adapter = Ember.Object.extend({
     return callMany(ids, this.find);
   },
 
-  create: Ember.required(),
-  createMany: function(records) {
+  materialize: Ember.required(),
+  materializeMany: function(records) {
     return callMany(records, this.create);
   },
 

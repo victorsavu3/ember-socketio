@@ -21,7 +21,7 @@ DS.LocalStorageAdapter = DS.Adapter.extend({
     return RSVP.resolve(localStorage[this.getRecordUUID(type, id)]);
   },
 
-  create: function(type, record) {
+  materialize: function(type, record) {
     this.cache[Ember.guidFor(type)] = this.cache[Ember.guidFor(type)] || {};
 
     localStorage[this.getRecordUUID(type, record.id)] = JSON.stringify(record.serialize());
