@@ -13,7 +13,8 @@ DS.Model.reopenClass({
           sync: meta.options.sync,
           eager: meta.options.eager,
           readOnly: meta.options.readOnly,
-          default: meta.options.default
+          default: meta.options.default,
+          embedded: meta.options.embedded
         };
       }
     });
