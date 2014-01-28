@@ -31,12 +31,14 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
   },
 
   lookup: function(type, name) {
+    this[type] = this[type] | {};
+
     if(_.isString(name)) {
       if(this[type][name]){
         return this[type][name];
       } else {
         var normalized = this.container.normalize(type + ':' + name);
-        var lookup = this.container.lookupFactory(normalizedKey);
+        var lookup = this.container.lookupFactory(normalized);
         if (!lookup) { throw new Ember.Error("No " + type + " was found for '" + name + "'"); }
 
         // add useful properties
