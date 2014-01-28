@@ -21,7 +21,7 @@ DS.LocalStorageAdapter = DS.Adapter.extend({
     return RSVP.resolve(localStorage[this.getRecordUUID(type, id)]);
   },
 
-  materialize: function(type, record) {
+  createRecord: function(type, record) {
     this.cache[Ember.guidFor(type)] = this.cache[Ember.guidFor(type)] || {};
 
     localStorage[this.getRecordUUID(type, record.id)] = JSON.stringify(record.serialize());
@@ -29,13 +29,13 @@ DS.LocalStorageAdapter = DS.Adapter.extend({
     return RSVP.resolve(record);
   },
 
-  update: function(type, record) {
+  updateRecord: function(type, record) {
     localStorage[this.getRecordUUID(type, record.id)] = JSON.stringify(record.serialize());
 
     return RSVP.resolve(record);
   },
 
-  delete: function(type, record) {
+  deleteRecord: function(type, record) {
     localStorage.removeItem(this.getRecordUUID(type, record.id));
 
     return RSVP.resolve(record);

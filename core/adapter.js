@@ -11,26 +11,26 @@ var callMany = function(entitys, what) {
 DS.Adapter = Ember.Object.extend({
   serializer: 'default',
 
-  findAll: Ember.required(),
-  findQuery: Ember.required(),
+  findAll: Ember.required(Function),
+  findQuery: Ember.required(Function),
 
-  find: Ember.required(),
+  find: Ember.required(Function),
   findMany: function(ids) {
     return callMany(ids, this.find);
   },
 
-  materialize: Ember.required(),
+  createRecord: Ember.required(Function),
   materializeMany: function(records) {
-    return callMany(records, this.create);
+    return callMany(records, this.createRecord);
   },
 
-  update: Ember.required(),
+  updateRecord: Ember.required(Function),
   updateMany: function(records) {
-    return callMany(records, this.update);
+    return callMany(records, this.updateRecord);
   },
 
-  delete: Ember.required(),
+  deleteRecord: Ember.required(Function),
   deleteMany: function(ids) {
-    return callMany(ids, this.delete);
+    return callMany(ids, this.deleteRecord);
   }
 })

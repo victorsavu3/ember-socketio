@@ -55,7 +55,12 @@ DS.HasManyRelationship = DS.Relationship.extend({
   }.property('getValue'),
 
   load: function(value) {
-    this.set('original', value);
+    if(this.type.embedded) {
+      this.get('store').load(value);
+      this.set('original', value.mapBy('id'));
+    } else {
+      this.set('original', value);
+    }
   },
 
   rollback: function() {

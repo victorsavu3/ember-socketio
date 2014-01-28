@@ -13,7 +13,7 @@ DS.MemoryAdapter = DS.Adapter.extend({
     return RSVP.resolve(this.cache[Ember.guidFor(type)][id]);
   },
 
-  materialize: function(type, record) {
+  createRecord: function(type, record) {
     this.cache[Ember.guidFor(type)] = this.cache[Ember.guidFor(type)] || {};
 
     this.cache[Ember.guidFor(type)][record.id] = record;
@@ -21,13 +21,13 @@ DS.MemoryAdapter = DS.Adapter.extend({
     return RSVP.resolve(record);
   },
 
-  update: function(type, record) {
+  updateRecord: function(type, record) {
     this.cache[Ember.guidFor(type)][record.id] = record;
 
     return RSVP.resolve(record);
   },
 
-  delete: function(type, record) {
+  deleteRecord: function(type, record) {
     delete this.cache[Ember.guidFor(type)][record.id];
 
     return RSVP.resolve(record);
