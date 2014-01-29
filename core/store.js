@@ -5,31 +5,32 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
     this.cache = {};
   },
 
-  addToCache: function(type, object) {
+  cacheFor: function(type) {
     var guid = Ember.guidFor(type);
 
-    if(!this.cache[guid])
-      this.cache[guid] = Ember.A([]);
+    this.cache[guid] = this.cache[guid] ||Ember.A([]);
 
-    var map = this.cache[guid];
+    return this.cache[guid]
+  },
+
+  addToCache: function(type, object) {
+    var map = this.cacheFor(type);
 
     Ember.assert("Adding existing record to cache", !map[object.get('id')]);
 
     map[object.get('id')] = object;
   },
 
-  loadFromCache: function(type, object) {
-    var guid = Ember.guidFor(type);
-    var map = this.cache[guid];
+  loadFromCache: function(type, id) {
+    var map = this.cacheFor(type);
 
-    return map[object.get('id')];
+    return map[id];
   },
 
-  removeFromCache: function(type, object) {
-    var guid = Ember.guidFor(type);
-    var map = this.cache[guid];
+  removeFromCache: function(type, id) {
+    var map = this.cacheFor(type);
 
-    delete map[object.get('id')];
+    delete map[id];
   },
 
   lookup: function(type, name) {
@@ -44,11 +45,11 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
         if (!lookup) { throw new Ember.Error("No " + type + " was found for '" + name + "'"); }
 
         // add useful properties
-        lookup.name = name;
+        lookup.typeKey = name;
         lookup.store = this;
 
         if(type === "model") {
-          lookup.adapter = this.container.lookupFactory('adapter:' + name) || this.adapter;
+          lookup.adapter = this.container.lookupFactory('adapter:' + name) || this.container.lookup('adapter:application') || this.adapter;
         }
 
         return lookup;
@@ -82,7 +83,7 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
         return this.loadFromCache(type, rid);
       })
     } else if(_.isString(id) || _.isNumber(id)){
-      return this.loadFromCache(type, rid);
+      return this.loadFromCache(type, id);
     }
   },
 
@@ -94,7 +95,7 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
     return record
   },
 
-  load: function(type, data) {
+  push: function(type, data) {
     type = this.getModel(type);
 
     if(_.isArray(data)) {
@@ -116,7 +117,7 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
     type = this.getModel(type);
 
     if(_.isArray(query)) {
-      var promise = type.adaper.findMany(store, type, query).then(function(data) {
+      var promise = type.adapter.findMany(this, type, query).then(function(data) {
         return data.map(function(element) {
           var record = this.deserialize(type, data);
           this.addToCache(type, record);
@@ -126,7 +127,7 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
 
       return Ember.RSVP.resolve(promise, "fetching many records (query)");
     } else if(_.isObject(query)) {
-      var promise = type.adaper.findQuery(store, type, query).then(function(data) {
+      var promise = type.adapter.findQuery(this, type, query).then(function(data) {
         return data.map(function(element) {
           var record = this.deserialize(type, data);
           this.addToCache(type, record);
@@ -136,7 +137,7 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
 
       return Ember.RSVP.resolve(promise, "fetching many records (array)");
     } else if(_.isNumber(query) || _.isString(query)){
-      var promise = type.adaper.findQuery(store, type, query).then(function(data) {
+      var promise = type.adapter.findQuery(this, type, query).then(function(data) {
         var record = this.deserialize(type, data);
         this.addToCache(type, record);
         return record;
@@ -144,7 +145,7 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
 
       return Ember.RSVP.resolve(promise, "fetching single record");
     } else if(_.isUndefined(query)) {
-      var promise = type.adaper.findAll(store, type).then(function(data) {
+      var promise = type.adapter.findAll(this, type).then(function(data) {
         var result =  data.map(function(element) {
           var record = this.deserialize(type, data);
           this.addToCache(type, record);
