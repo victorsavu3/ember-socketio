@@ -102,7 +102,7 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
     this.loadRelationships(record, data);
     this.loadAttributes(record, data);
 
-    record.id = data.id;
+    record.set('id', data.id);
   },
 
   push: function(type, data) {

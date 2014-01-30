@@ -7,5 +7,9 @@ DS.StringTransform = DS.Transform.create({
   serialize: function(deserialized) {
     Ember.assert("attribute is not a string", _.isString(deserialized));
     return deserialized;
+  },
+
+  equals: function(a, b) {
+    return a===b;
   }
 });

@@ -17,5 +17,9 @@ DS.BooleanTransform = DS.Transform.create({
 
       return serialized === "true";
     }
+  },
+
+  equals: function(a, b) {
+    return a===b;
   }
 });

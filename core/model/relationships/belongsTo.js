@@ -60,7 +60,7 @@ DS.BelongsToRelationship = DS.Relationship.extend({
   },
 
   notifyer:function(){
-    Ember.notifyObservers(this.get('record'), this.key);
+    this.get('record').notifyPropertyChange(this.key);
   }.observes('value')
 });
 

@@ -14,7 +14,8 @@ DS.Model.reopenClass({
           eager: meta.options.eager,
           readOnly: meta.options.readOnly,
           default: meta.options.default,
-          embedded: meta.options.embedded
+          embedded: meta.options.embedded,
+          isSet: meta.options.isSet
         };
       }
     });

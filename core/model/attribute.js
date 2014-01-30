@@ -11,15 +11,28 @@ DS.Attribute = Ember.Object.extend(Ember.Evented, {
         return this.default;
       }
     }
+  }.property('value', 'original'),
+
+  setValue: function(value) {
+    this.set('value', value);
   },
 
   load: function(data) {
-    this.original = this.type.transform.deserialize(data);
+    var original = this.get('original');
+    var value = this.type.transform.deserialize(data);
+
+    if(this.type.transform.equals(original, value)) return;
+
+    this.set('original', value);
   },
 
   rollback: function() {
     delete this.value;
-  }
+  },
+
+  notifyer:function(){
+    this.get('record').notifyPropertyChange(this.type.key);
+  }.observes('getValue')
 });
 
 DS.attr = function(type, options) {
@@ -34,7 +47,7 @@ DS.attr = function(type, options) {
 
     if(_.isUndefined(value)) {
       // get
-      return attribute.getValue();
+      return attribute.get('getValue');
     } else {
       //set
       Ember.assert("Can not update id of record", key !== 'id');
@@ -42,8 +55,8 @@ DS.attr = function(type, options) {
 
       attribute.set('isDirty', true);
 
-      this.emit('set', key, this.getValue(attribute), value, attribute);
-      this.emit('set:' + key, this.getValue(attribute), value, attribute);
+      this.emit('set', key, this.get('getValue'), value, attribute);
+      this.emit('set:' + key, this.get('getValue'), value, attribute);
 
       attribute.value = value;
 
@@ -83,7 +96,8 @@ DS.Model.reopen({
     var self = this;
     _.each(Ember.get(this.constructor, 'attributes'), function(attribute, key){
       var meta = DS.Attribute.create({
-        type: attribute
+        type: attribute,
+        record: self
       });
 
       meta.addObserver('isDirty', self, self.dirtyUpdate);

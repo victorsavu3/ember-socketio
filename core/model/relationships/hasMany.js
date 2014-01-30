@@ -13,9 +13,11 @@ DS.HasManyRelationship = DS.Relationship.extend({
 
   getValue: function() {
     var value =  this.get('store').getRecord(this.type.type, this.get('getIds'));
+
     Ember.assert("Sanity check failed (sync relationship used before data available)", _.every(value, function(element) {
       return !_.isUndefined(element);
     }));
+
     return value;
   }.property('getIds'),
 
@@ -23,6 +25,12 @@ DS.HasManyRelationship = DS.Relationship.extend({
     if(this.type.readOnly) throw new Ember.Error("Relation is read only");
 
     if(!_.isArray(value)) throw new Ember.Error("hasMany value is not an array");
+
+    if(this.type.isSet) {
+      value = _.sortBy(value, 'id');
+    }
+
+    if(_.equals(value, this.get('ids'))) return;
 
     this.set('isDirty', true);
 
@@ -57,10 +65,18 @@ DS.HasManyRelationship = DS.Relationship.extend({
   }.property('getValue'),
 
   load: function(value) {
+    if(this.type.isSet) {
+      value = _.sortBy(value, 'id');
+    }
+
     if(this.type.embedded) {
       this.get('store').push(this.type.type, value);
-      this.set('original', value.mapBy('id'));
+
+      var ids = value.mapBy('id');
+      if(_.isEqual(this.get('original'), ids)) return;
+      this.set('original', ids);
     } else {
+      if(_.isEqual(this.get('original'), value)) return;
       this.set('original', value);
     }
   },
@@ -72,7 +88,7 @@ DS.HasManyRelationship = DS.Relationship.extend({
   },
 
   notifyer:function(){
-    Ember.notifyObservers(this.get('record'), this.key);
+    this.get('record').notifyPropertyChange(this.key);
   }.observes('value')
 });
 

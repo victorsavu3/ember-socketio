@@ -12,5 +12,9 @@ DS.NumberTransform = DS.Transform.create({
   serialize: function(deserialized) {
     Ember.assert("attribute is not number", _.isNumber(deserialized));
     return deserialized;
+  },
+
+  equals: function(a, b) {
+    return a===b;
   }
 });
