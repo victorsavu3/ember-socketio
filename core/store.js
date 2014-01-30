@@ -75,12 +75,13 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
     return this.lookup('adapter', name);
   },
 
-  get: function(type, id) {
+  getRecord: function(type, id) {
     type = this.getModel(type);
+    var self = this;
 
     if(_.isArray(id)) {
       return id.map(function(rid){
-        return this.loadFromCache(type, rid);
+        return self.loadFromCache(type, rid);
       })
     } else if(_.isString(id) || _.isNumber(id)){
       return this.loadFromCache(type, id);
@@ -88,7 +89,9 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
   },
 
   deserialize: function(type, data) {
-    var record = this.getModel(type).create();
+    var record = this.getModel(type).create({
+      store: this
+    });
 
     this.load(record, data);
 
@@ -98,17 +101,22 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
   load: function(record, data) {
     this.loadRelationships(record, data);
     this.loadAttributes(record, data);
+
+    record.id = data.id;
   },
 
   push: function(type, data) {
     type = this.getModel(type);
 
     if(_.isArray(data)) {
-
+      var self = this;
+      _.each(data, function(element) {
+        self.push(type, element);
+      });
     } else {
       Ember.assert("Missing id in load", data.id);
 
-      var existing = this.get(type, data.id);
+      var existing = this.getRecord(type, data.id);
 
       if(existing) {
         this.load(existing, data);
@@ -120,12 +128,13 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
 
   fetch: function(type, query) {
     type = this.getModel(type);
+    var self = this;
 
     if(_.isArray(query)) {
       var promise = type.adapter.findMany(this, type, query).then(function(data) {
         return data.map(function(element) {
-          var record = this.deserialize(type, data);
-          this.addToCache(type, record);
+          var record = self.deserialize(type, data);
+          self.addToCache(type, record);
           return record;
         });
       });
@@ -134,17 +143,17 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
     } else if(_.isObject(query)) {
       var promise = type.adapter.findQuery(this, type, query).then(function(data) {
         return data.map(function(element) {
-          var record = this.deserialize(type, data);
-          this.addToCache(type, record);
+          var record = self.deserialize(type, element);
+          self.addToCache(type, record);
           return record;
         });
       });
 
       return Ember.RSVP.resolve(promise, "fetching many records (array)");
     } else if(_.isNumber(query) || _.isString(query)){
-      var promise = type.adapter.findQuery(this, type, query).then(function(data) {
-        var record = this.deserialize(type, data);
-        this.addToCache(type, record);
+      var promise = type.adapter.find(this, type, query).then(function(data) {
+        var record = self.deserialize(type, data);
+        self.addToCache(type, record);
         return record;
       });
 
@@ -152,8 +161,8 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
     } else if(_.isUndefined(query)) {
       var promise = type.adapter.findAll(this, type).then(function(data) {
         var result =  data.map(function(element) {
-          var record = this.deserialize(type, data);
-          this.addToCache(type, record);
+          var record = self.deserialize(type, element);
+          self.addToCache(type, record);
           return record;
         });
 
@@ -170,12 +179,13 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
 
   find: function(type, query) {
     type = this.getModel(type);
+    var self = this;
 
     if(_.isArray(query)) {
       var toGet = [];
 
       var existing = query.map(function(element) {
-        var record = this.get(type, element);
+        var record = self.getRecord(type, element);
 
         if(record) {
           return record;
@@ -207,7 +217,7 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
     } else if(_.isObject(query)) {
       return Ember.RSVP.resolve(this.fetch(type, query), "find fetching records (query)");
     } else if(_.isNumber(query) || _.isString(query)){
-      var existing = this.get(type, query);
+      var existing = this.getRecord(type, query);
 
       if(existing) return Ember.RSVP.resolve(existing, "find returning cached record (single)");
 
@@ -224,7 +234,9 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
   },
 
   createRecord: function(type, data) {
-    var record = this.getModel(type).create();
+    var record = this.getModel(type).create({
+      store: this
+    });
 
     record._state.set('new');
 

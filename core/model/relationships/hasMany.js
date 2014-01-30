@@ -12,7 +12,7 @@ DS.HasManyRelationship = DS.Relationship.extend({
   store: Ember.computed.alias('record.store'),
 
   getValue: function() {
-    var value =  this.get('store').get(this.type.type, this.get('getIds'));
+    var value =  this.get('store').getRecord(this.type.type, this.get('getIds'));
     Ember.assert("Sanity check failed (sync relationship used before data available)", _.isUndefined(value));
     return value;
   }.property('getIds'),
@@ -20,7 +20,7 @@ DS.HasManyRelationship = DS.Relationship.extend({
   setValue: function(value) {
     if(this.type.readOnly) throw new Ember.Error("Relation is read only");
 
-    if(!_.isArray(value)) throw new Ember.Error("hasMany value is not an array");;
+    if(!_.isArray(value)) throw new Ember.Error("hasMany value is not an array");
 
     this.set('isDirty', true);
 
@@ -50,13 +50,13 @@ DS.HasManyRelationship = DS.Relationship.extend({
     if(this.type.sync) {
       return this.get('getValue');
     } else {
-      return this.get('store').find(this.type.type, this.getId());
+      return this.get('store').find(this.type.type, this.get('getIds'));
     }
   }.property('getValue'),
 
   load: function(value) {
     if(this.type.embedded) {
-      this.get('store').load(value);
+      this.get('store').push(this.type.type, value);
       this.set('original', value.mapBy('id'));
     } else {
       this.set('original', value);
@@ -78,7 +78,7 @@ DS.hasMany = function(type, options) {
   var meta = {
     type: type,
     isRelationship: true,
-    kind: 'belongsTo',
+    kind: 'hasMany',
     options: options || {}
   };
 
@@ -99,4 +99,4 @@ DS.hasMany = function(type, options) {
       return relationship.get('value');
     }
   }).meta(meta);
-}
+};

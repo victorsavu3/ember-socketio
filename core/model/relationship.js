@@ -40,12 +40,12 @@ DS.Model.reopen({
       if(relationship.kind === 'belongsTo') {
         meta = DS.BelongsToRelationship.create({
           type: relationship,
-          record: this
+          record: self
         });
       } else if(relationship.kind === 'hasMany') {
         meta = DS.HasManyRelationship.create({
           type: relationship,
-          record: this
+          record: self
         });
       } else {
         throw new Ember.Error("Unknown kind " + relationship.kind);
@@ -77,13 +77,7 @@ DS.Model.reopen({
 DS.Store.reopen({
   loadRelationships: function(record, data) {
     _.each(record.get('_relationships'), function(value, key) {
-      value.original = data[key];
-
-      if(value.type.kind === 'belongsTo') {
-        delete value.id;
-      } else if(value.type.kind === 'hasMany') {
-        delete value.ids;
-      }
+      value.load(data[key]);
     });
   },
 

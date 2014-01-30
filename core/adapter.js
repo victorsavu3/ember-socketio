@@ -1,11 +1,11 @@
-var callMany = function(entitys, what) {
-  var promises;
+var callMany = function(store, type, entitys, what) {
+  var promises = [];
 
-  entitys.forEach(function(entity){
-    promises.push(what(entity));
+  _.each(entitys, function(entity){
+    promises.push(what(store, type, entity));
   });
 
-  return RSVP.Promise.all(promises);
+  return Ember.RSVP.Promise.all(promises);
 }
 
 DS.Adapter = Ember.Object.extend({
@@ -15,22 +15,22 @@ DS.Adapter = Ember.Object.extend({
   findQuery: Ember.required(Function),
 
   find: Ember.required(Function),
-  findMany: function(ids) {
-    return callMany(ids, this.find);
+  findMany: function(store, type, ids) {
+    return callMany(store, type, ids, this.find);
   },
 
   createRecord: Ember.required(Function),
-  materializeMany: function(records) {
-    return callMany(records, this.createRecord);
+  createMany: function(store, type, records) {
+    return callMany(store, type, records, this.createRecord);
   },
 
   updateRecord: Ember.required(Function),
-  updateMany: function(records) {
-    return callMany(records, this.updateRecord);
+  updateMany: function(store, type, records) {
+    return callMany(store, type, records, this.updateRecord);
   },
 
   deleteRecord: Ember.required(Function),
-  deleteMany: function(ids) {
-    return callMany(ids, this.deleteRecord);
+  deleteMany: function(store, type, ids) {
+    return callMany(store, type, ids, this.deleteRecord);
   }
 })
