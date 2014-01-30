@@ -13,7 +13,9 @@ DS.HasManyRelationship = DS.Relationship.extend({
 
   getValue: function() {
     var value =  this.get('store').getRecord(this.type.type, this.get('getIds'));
-    Ember.assert("Sanity check failed (sync relationship used before data available)", _.isUndefined(value));
+    Ember.assert("Sanity check failed (sync relationship used before data available)", _.every(value, function(element) {
+      return !_.isUndefined(element);
+    }));
     return value;
   }.property('getIds'),
 
