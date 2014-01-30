@@ -6,7 +6,7 @@ DS.Model.reopenClass({
       if(meta.isRelationship) {
         relationships[key] = {
           key: key,
-          type: this.store.getType(meta.type),
+          type: this.store.getModel(meta.type),
           kind: meta.kind,
 
           // options
@@ -34,7 +34,7 @@ DS.Model.reopen({
     var relationships = {};
 
     var self=this;
-    this.constructor.relationships().forEach(function(key, relationship){
+    _.each(Ember.get(this.constructor, 'relationships'), function(relationship, key){
       var meta;
 
       if(relationship.kind === 'belongsTo') {
@@ -65,16 +65,18 @@ DS.Model.reopen({
 
   relationshipsDirty: Ember.computed(function() {
     var dirty = false;
-    this.get('_relationships').forEach(function(key, value){
+    _.each(this.get('_relationships'), function(value, key){
       if(value.isDirty) {
         dirty = true;
       }
     });
     return dirty;
-  }),
+  })
+});
 
-  loadRelationships: function(data) {
-    this.get('_relationships').forEach(function(key, value) {
+DS.Store.reopen({
+  loadRelationships: function(record, data) {
+    _.each(record.get('_relationships'), function(value, key) {
       value.original = data[key];
 
       if(value.type.kind === 'belongsTo') {
@@ -85,8 +87,8 @@ DS.Model.reopen({
     });
   },
 
-  rollbackRelationships: function() {
-    this.get('_.relationships').forEach(function(key, value) {
+  rollbackRelationships: function(record) {
+    _.each(record.get('_.relationships'), function(value, key) {
       value.rollback();
     });
   }

@@ -90,9 +90,14 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
   deserialize: function(type, data) {
     var record = this.getModel(type).create();
 
-    record.load(data);
+    this.load(record, data);
 
     return record
+  },
+
+  load: function(record, data) {
+    this.loadRelationships(record, data);
+    this.loadAttributes(record, data);
   },
 
   push: function(type, data) {
@@ -106,7 +111,7 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
       var existing = this.get(type, data.id);
 
       if(existing) {
-        existing.load(data);
+        this.load(existing, data);
       } else {
         this.addToCache(type, this.deserialize(type, data));
       }
@@ -229,4 +234,6 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
 
     return record;
   }
-})
+});
+
+require('scripts/data/core/model/model');

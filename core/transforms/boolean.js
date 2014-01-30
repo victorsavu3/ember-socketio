@@ -1,4 +1,4 @@
-DS.BooleanTransform = DS.Transform.extend({
+DS.BooleanTransform = DS.Transform.create({
   deserialize: function(serialized) {
     if(_.isBoolean(serialized)) {
       return serialized;

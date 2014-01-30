@@ -1,4 +1,4 @@
-DS.NumberTransform = DS.Transform.extend({
+DS.NumberTransform = DS.Transform.create({
   deserialize: function(serialized) {
     if(_.isNumber(serialized)) {
       return serialized;

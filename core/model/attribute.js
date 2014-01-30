@@ -38,11 +38,12 @@ DS.attr = function(type, options) {
     } else {
       //set
       Ember.assert("Can not update id of record", key !== 'id');
+      if(this.type.readOnly) throw new Ember.Error("Attribute '" + key + "' is read only");
 
       attribute.set('isDirty', true);
 
-      this.emit('set', key, getValue(attribute), value, attribute);
-      this.emit('set:' + key, getValue(attribute), value, attribute);
+      this.emit('set', key, this.getValue(attribute), value, attribute);
+      this.emit('set:' + key, this.getValue(attribute), value, attribute);
 
       attribute.value = value;
 
@@ -59,11 +60,12 @@ DS.Model.reopenClass({
       if(meta.isAttribute) {
         attributes[key] = {
           key: key,
-          type: this.store.getType(meta.type),
           transform: this.store.getTransform(meta.type),
 
           // options
-          default: meta.options.default
+          default: meta.options.default,
+          readOnly: meta.options.readOnly,
+          optional: meta.options.optional
         };
       }
     });
@@ -79,7 +81,7 @@ DS.Model.reopen({
     var attributes = {};
 
     var self = this;
-    this.constructor.attributes().forEach(function(key, attribute){
+    _.each(Ember.get(this.constructor, 'attributes'), function(attribute, key){
       var meta = DS.Attribute.create({
         type: attribute
       });
@@ -98,26 +100,32 @@ DS.Model.reopen({
 
   attributesDirty: Ember.computed(function() {
     var dirty = false;
-    this.get('_attributes').forEach(function(key, value){
+    _.each(this.get('_attributes'), function(value, key){
       if(value.isDirty) {
         dirty = true;
       }
     });
     return dirty;
-  }),
+  })
+})
 
-  loadAttributes: function(data) {
-    this.get('_attributes').forEach(function(key, value) {
-      value.load(data);
+DS.Store.reopen({
+  loadAttributes: function(record, data) {
+    _.each(record.get('_attributes'), function(value, key) {
+      if(_.isUndefined(data[key]) ) {
+        Ember.assert("Non-optional field '" + key +"' missing", record._attributes[key].type.optional);
+      } else {
+        value.load(data[key]);
+      }
 
       delete value.value;
     });
   },
 
-  rollbackAttributes: function() {
-    this.get('_attributes').forEach(function(key, value) {
+  rollbackAttributes: function(record) {
+    _.each(record.get('_attributes'), function(value, key) {
       value.rollback();
     });
   }
-})
+});
 

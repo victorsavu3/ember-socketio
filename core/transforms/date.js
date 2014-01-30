@@ -1,4 +1,4 @@
-DS.DateTransform = DS.Transform.extend({
+DS.DateTransform = DS.Transform.create({
   deserialize: function(serialized) {
     return serialized;
   },

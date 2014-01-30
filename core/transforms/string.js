@@ -1,5 +1,4 @@
-DS.StringTransform = DS.Transform.extend({
-
+DS.StringTransform = DS.Transform.create({
   deserialize: function(serialized) {
     Ember.assert("attribute is not a string", _.isString(serialized));
     return serialized;
@@ -9,5 +8,4 @@ DS.StringTransform = DS.Transform.extend({
     Ember.assert("attribute is not a string", _.isString(deserialized));
     return deserialized;
   }
-
 });
