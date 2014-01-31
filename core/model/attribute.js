@@ -14,7 +14,14 @@ DS.Attribute = Ember.Object.extend(Ember.Evented, {
   }.property('value', 'original'),
 
   setValue: function(value) {
+    if(this.type.readOnly) throw new Ember.Error("Attribute '" + key + "' is read only");
+
+    if(this.type.transform.equals(this.get('value'), value)) return;
+
     this.set('value', value);
+    this.set('isDirty', true);
+
+    this.get('record').notifyPropertyChange('attributesDirty');
   },
 
   load: function(data) {
@@ -51,14 +58,11 @@ DS.attr = function(type, options) {
     } else {
       //set
       Ember.assert("Can not update id of record", key !== 'id');
-      if(this.type.readOnly) throw new Ember.Error("Attribute '" + key + "' is read only");
 
-      attribute.set('isDirty', true);
+      attribute.setValue(value);
 
-      this.emit('set', key, this.get('getValue'), value, attribute);
-      this.emit('set:' + key, this.get('getValue'), value, attribute);
-
-      attribute.value = value;
+      this.trigger('set', key, this.get('getValue'), value, attribute);
+      this.trigger('set:' + key, this.get('getValue'), value, attribute);
 
       return value;
     }
@@ -106,10 +110,6 @@ DS.Model.reopen({
     });
 
     this.set('_attributes', attributes);
-  },
-
-  dirtyUpdate: function() {
-    this.notifyPropertyChange('attributesDirty');
   },
 
   attributesDirty: Ember.computed(function() {

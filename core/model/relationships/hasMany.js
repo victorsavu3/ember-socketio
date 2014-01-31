@@ -109,8 +109,8 @@ DS.hasMany = function(type, options) {
     if(_.isUndefined(value)) {
       return relationship.get('value');
     } else {
-      this.emit('set', key, relationship.get('value'), value, relationship);
-      this.emit('set:' + key, relationship.get('value'), value, relationship);
+      this.trigger('set', key, relationship.get('value'), value, relationship);
+      this.trigger('set:' + key, relationship.get('value'), value, relationship);
 
       relationship.setValue(value);
 

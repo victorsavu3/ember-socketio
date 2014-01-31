@@ -133,8 +133,8 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
     if(_.isArray(query)) {
       var promise = type.adapter.findMany(this, type, query).then(function(data) {
         return data.map(function(element) {
-          var record = self.deserialize(type, data);
-          self.addToCache(type, record);
+          var record = self.deserialize(type, element);
+          self.push(type, record);
           return record;
         });
       });
@@ -144,7 +144,7 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
       var promise = type.adapter.findQuery(this, type, query).then(function(data) {
         return data.map(function(element) {
           var record = self.deserialize(type, element);
-          self.addToCache(type, record);
+          self.push(type, record);
           return record;
         });
       });
@@ -153,7 +153,7 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
     } else if(_.isNumber(query) || _.isString(query)){
       var promise = type.adapter.find(this, type, query).then(function(data) {
         var record = self.deserialize(type, data);
-        self.addToCache(type, record);
+        self.push(type, record);
         return record;
       });
 
@@ -162,7 +162,7 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
       var promise = type.adapter.findAll(this, type).then(function(data) {
         var result =  data.map(function(element) {
           var record = self.deserialize(type, element);
-          self.addToCache(type, record);
+          self.push(type, record);
           return record;
         });
 
@@ -175,6 +175,18 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
     } else {
       throw new Ember.Error("Invalid query for fetch");
     }
+  },
+
+  all: function(type) {
+    var map = this.cacheFor(type);
+
+    var ret = [];
+
+    _.each(map, function(element){
+      ret.push(element);
+    });
+
+    return ret;
   },
 
   find: function(type, query) {
@@ -245,6 +257,21 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
     });
 
     return record;
+  },
+
+  save: function(record) {
+    var self = this;
+    if(record.get('isDeleted')) {
+      return record.adapter.deleteRecord(this, record.type, record.get('id')).then(function(data) {
+        self.unload(record.get('id'));
+        return data;
+      });
+    } else if(record.get('isDirty')){
+      return record.adapter.updateRecord(this, record.type, record.get('id')).then(function(data) {
+        record.load(data);
+        record.rollback();
+      });
+    }
   }
 });
 
