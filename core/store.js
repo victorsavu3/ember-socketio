@@ -36,7 +36,6 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
   lookup: function(type, name) {
     if(_.isString(name)) {
       this[type] = this[type] | {};
-
       if(this[type][name]){
         return this[type][name];
       } else {
@@ -110,18 +109,21 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
 
     if(_.isArray(data)) {
       var self = this;
-      _.each(data, function(element) {
-        self.push(type, element);
+      return _.map(data, function(element) {
+        return self.push(type, element);
       });
     } else {
       Ember.assert("Missing id in load", data.id);
 
-      var existing = this.getRecord(type, data.id);
+      var record = this.getRecord(type, data.id);
 
-      if(existing) {
-        this.load(existing, data);
+      if(record) {
+        this.load(record, data);
+        return record;
       } else {
-        this.addToCache(type, this.deserialize(type, data));
+        record = this.deserialize(type, data);
+        this.addToCache(type, record);
+        return record;
       }
     }
   },
@@ -133,9 +135,7 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
     if(_.isArray(query)) {
       var promise = type.adapter.findMany(this, type, query).then(function(data) {
         return data.map(function(element) {
-          var record = self.deserialize(type, element);
-          self.push(type, record);
-          return record;
+          return self.push(type, element);
         });
       });
 
@@ -143,27 +143,21 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
     } else if(_.isObject(query)) {
       var promise = type.adapter.findQuery(this, type, query).then(function(data) {
         return data.map(function(element) {
-          var record = self.deserialize(type, element);
-          self.push(type, record);
-          return record;
+          return self.push(type, element);
         });
       });
 
       return Ember.RSVP.resolve(promise, "fetching many records (array)");
     } else if(_.isNumber(query) || _.isString(query)){
       var promise = type.adapter.find(this, type, query).then(function(data) {
-        var record = self.deserialize(type, data);
-        self.push(type, record);
-        return record;
+        return self.push(type, element);
       });
 
       return Ember.RSVP.resolve(promise, "fetching single record");
     } else if(_.isUndefined(query)) {
       var promise = type.adapter.findAll(this, type).then(function(data) {
         var result =  data.map(function(element) {
-          var record = self.deserialize(type, element);
-          self.push(type, record);
-          return record;
+          return self.push(type, element);
         });
 
         type.allLoaded = true;
