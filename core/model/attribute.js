@@ -19,7 +19,6 @@ DS.Attribute = Ember.Object.extend(Ember.Evented, {
     if(this.type.transform.equals(this.get('value'), value)) return;
 
     this.set('value', value);
-    this.set('isDirty', true);
 
     this.get('record').notifyPropertyChange('attributesDirty');
   },
@@ -33,13 +32,21 @@ DS.Attribute = Ember.Object.extend(Ember.Evented, {
     this.set('original', value);
   },
 
+  unload: function() {
+    return this.type.transform.deserialize(this.get('getValue'));
+  },
+
   rollback: function() {
     delete this.value;
   },
 
   notifyer:function(){
     this.get('record').notifyPropertyChange(this.type.key);
-  }.observes('getValue')
+  }.observes('getValue'),
+
+  isDirty: function() {
+    return !_.isUndefined(this.get('value'));
+  }.property('value')
 });
 
 DS.attr = function(type, options) {
@@ -104,7 +111,9 @@ DS.Model.reopen({
         record: self
       });
 
-      meta.addObserver('isDirty', self, self.dirtyUpdate);
+      meta.addObserver('isDirty', self, function() {
+        self.notifyPropertyChange('attributesDirty');
+      });
 
       attributes[attribute.key] = meta;
     });
@@ -115,7 +124,7 @@ DS.Model.reopen({
   attributesDirty: Ember.computed(function() {
     var dirty = false;
     _.each(this.get('_attributes'), function(value, key){
-      if(value.isDirty) {
+      if(value.get('isDirty')) {
         dirty = true;
       }
     });
@@ -140,6 +149,8 @@ DS.Store.reopen({
     _.each(record.get('_attributes'), function(value, key) {
       value.rollback();
     });
+
+    record.notifyPropertyChange('attributesDirty');
   }
 });
 

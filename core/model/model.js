@@ -2,7 +2,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
   id: null,
 
   save: function() {
-    this.get('store').save(this);
+    return this.get('store').save(this);
   },
 
   destroy: function() {

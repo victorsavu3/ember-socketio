@@ -9,8 +9,6 @@ var callMany = function(store, type, entitys, what) {
 }
 
 DS.Adapter = Ember.Object.extend({
-  serializer: 'default',
-
   findAll: Ember.required(Function),
   findQuery: Ember.required(Function),
 

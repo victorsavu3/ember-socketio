@@ -51,7 +51,9 @@ DS.State = Ember.Object.extend(Ember.Evented, {
 
   isNew: function() {
     return this.get('state') === 'new';
-  }.property('state')
+  }.property('state'),
+
+  isValid: true
 });
 
 DS.Model.reopen({
@@ -75,5 +77,6 @@ DS.Model.reopen({
   isLoading: Ember.computed.alias('_state.isLoading'),
   isSaving: Ember.computed.alias('_state.isSaving'),
   isError: Ember.computed.alias('_state.isError'),
+  isValid: Ember.computed.alias('_state.isValid'),
   error: Ember.computed.alias('_state.error').readOnly()
 });

@@ -1,5 +1,6 @@
 require('scripts/data/main')
 require('scripts/data/adapters/*')
+require('scripts/data/serializers/*')
 
 Ember.onLoad('Ember.Application', function(Application) {
   Application.initializer({

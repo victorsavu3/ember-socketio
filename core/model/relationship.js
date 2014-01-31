@@ -86,6 +86,8 @@ DS.Store.reopen({
     _.each(record.get('_.relationships'), function(value, key) {
       value.rollback();
     });
+
+    record.notifyPropertyChange('relationshipsDirty');
   }
 });
 

@@ -49,6 +49,7 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
 
         if(type === "model") {
           lookup.adapter = this.container.lookupFactory('adapter:' + name) || this.container.lookup('adapter:application') || this.adapter;
+          lookup.serializer = this.container.lookupFactory('serializer:' + name) || this.container.lookup('serializer:application') || this.serializer;
         }
 
         return lookup;
@@ -87,22 +88,26 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
     }
   },
 
-  deserialize: function(type, data) {
-    var record = this.getModel(type).create({
-      store: this
-    });
-
-    this.load(record, data);
-
-    return record
-  },
-
   load: function(record, data) {
     this.loadRelationships(record, data);
     this.loadAttributes(record, data);
 
     record.set('id', data.id);
   },
+
+  rollback: function(record) {
+    this.rollbackRelationships(record);
+    this.rollbackAttributes(record);
+  },
+
+  deserialize: function(type, data) {
+    return type.serializer.deserialize(this, type, data);
+  },
+
+  serialize: function(record) {
+    return record.constructor.serializer.serialize(this, record);
+  },
+
 
   push: function(type, data) {
     type = this.getModel(type);
@@ -150,7 +155,7 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
       return Ember.RSVP.resolve(promise, "fetching many records (array)");
     } else if(_.isNumber(query) || _.isString(query)){
       var promise = type.adapter.find(this, type, query).then(function(data) {
-        return self.push(type, element);
+        return self.push(type, data);
       });
 
       return Ember.RSVP.resolve(promise, "fetching single record");
@@ -256,15 +261,19 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
   save: function(record) {
     var self = this;
     if(record.get('isDeleted')) {
-      return record.adapter.deleteRecord(this, record.type, record.get('id')).then(function(data) {
+      return record.constructor.adapter.deleteRecord(this, record.constructor, record.get('id')).then(function(data) {
         self.unload(record.get('id'));
         return data;
       });
     } else if(record.get('isDirty')){
-      return record.adapter.updateRecord(this, record.type, record.get('id')).then(function(data) {
-        record.load(data);
-        record.rollback();
+      return record.constructor.adapter.updateRecord(this, record.constructor, record).then(function(data) {
+        self.load(record, data);
+        self.rollback(record);
+
+        return record;
       });
+    } else {
+      throw new Ember.Error("Requested update for unchanged record");
     }
   }
 });
