@@ -249,7 +249,7 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
       store: this
     });
 
-    record._state.set('new');
+    record.set('isNew', true);
 
     _.each(data, function(value, key) {
       record.set(key, value);
