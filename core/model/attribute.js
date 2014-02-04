@@ -135,7 +135,7 @@ DS.Model.reopen({
 DS.Store.reopen({
   loadAttributes: function(record, data) {
     _.each(record.get('_attributes'), function(value, key) {
-      if(_.isUndefined(data[key]) ) {
+      if(_.isUndefined(data[key]) || _.isNull(data[key])) {
         Ember.assert("Non-optional field '" + key +"' missing for " + record.constructor.typeKey, record._attributes[key].type.optional);
       } else {
         value.load(data[key]);
