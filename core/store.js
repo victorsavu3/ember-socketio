@@ -260,7 +260,19 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
 
   save: function(record) {
     var self = this;
-    if(record.get('isDeleted')) {
+
+    record.set('isSaving', true);
+
+    if(record.get('isNew')) {
+      return record.constructor.adapter.createRecord(this, record.constructor, record).then(function(data) {
+        self.load(record, data);
+        record.set('isSaved', true);
+        return record;
+      })['finally'](function(data) {
+        record.set('isNew', false);
+        record.set('isSaving', false);
+      });
+    } else if(record.get('isDeleted')) {
       return record.constructor.adapter.deleteRecord(this, record.constructor, record.get('id')).then(function(data) {
         self.unload(record.get('id'));
         return data;
@@ -270,8 +282,12 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
         self.load(record, data);
         self.rollback(record);
 
+        record.set('isSaved', true);
+
         return record;
-      });
+      })['finally'](function(data) {
+        record.set('isSaving', false);
+      });;
     } else {
       throw new Ember.Error("Requested update for unchanged record");
     }
