@@ -1,4 +1,8 @@
 DS.MemoryAdapter = DS.Adapter.extend({
+  init: function() {
+    this.cache = {};
+  },
+
   findAll: function(type) {
     var result = [];
 
@@ -6,11 +10,13 @@ DS.MemoryAdapter = DS.Adapter.extend({
       result.push(value);
     });
 
-    return RSVP.resolve(result);
+    return Ember.RSVP.resolve(result);
   },
 
   find: function(type, id) {
-    return RSVP.resolve(this.cache[Ember.guidFor(type)][id]);
+    this.cache[Ember.guidFor(type)] = this.cache[Ember.guidFor(type)] || {};
+
+    return Ember.RSVP.resolve(this.cache[Ember.guidFor(type)][id]);
   },
 
   createRecord: function(type, record) {
@@ -18,18 +24,22 @@ DS.MemoryAdapter = DS.Adapter.extend({
 
     this.cache[Ember.guidFor(type)][record.id] = record;
 
-    return RSVP.resolve(record);
+    return Ember.RSVP.resolve(record);
   },
 
   updateRecord: function(type, record) {
+    this.cache[Ember.guidFor(type)] = this.cache[Ember.guidFor(type)] || {};
+
     this.cache[Ember.guidFor(type)][record.id] = record;
 
-    return RSVP.resolve(record);
+    return Ember.RSVP.resolve(record);
   },
 
   deleteRecord: function(type, record) {
+    this.cache[Ember.guidFor(type)] = this.cache[Ember.guidFor(type)] || {};
+
     delete this.cache[Ember.guidFor(type)][record.id];
 
-    return RSVP.resolve(record);
+    return Ember.RSVP.resolve(record);
   }
 });
