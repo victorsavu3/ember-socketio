@@ -5,7 +5,7 @@ DS.NumberTransform = DS.Transform.create({
     } else {
       Ember.assert("attribute can not be converted to number", _.isString(serialized));
       var result = parseFloat(serialized);
-      Ember.assert("attribute is not a valid number", !_.isNan(result));
+      Ember.assert("attribute is not a valid number", !_.isNaN(result));
       return result;
     }
   },
