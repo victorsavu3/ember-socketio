@@ -60,7 +60,7 @@ DS.HasManyRelationship = DS.Relationship.extend({
     if(this.type.sync) {
       return this.get('getValue');
     } else {
-      return this.get('store').find(this.type.type, this.get('getIds'));
+      return DS.PromiseArray.create({promise: this.get('store').find(this.type.type, this.get('getIds'))});
     }
   }.property('getValue'),
 
