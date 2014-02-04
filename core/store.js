@@ -268,7 +268,7 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
         self.load(record, data);
         record.set('isSaved', true);
         return record;
-      })['finally'](function(data) {
+      })['finally'](function() {
         record.set('isNew', false);
         record.set('isSaving', false);
       });
@@ -285,9 +285,9 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
         record.set('isSaved', true);
 
         return record;
-      })['finally'](function(data) {
+      })['finally'](function() {
         record.set('isSaving', false);
-      });;
+      });
     } else {
       throw new Ember.Error("Requested update for unchanged record");
     }
