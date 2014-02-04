@@ -85,6 +85,8 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
       })
     } else if(_.isString(id) || _.isNumber(id)){
       return this.loadFromCache(type, id);
+    } else {
+      throw new Ember.Error("Invalid type for id for record");
     }
   },
 
@@ -93,6 +95,10 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
     this.loadAttributes(record, data);
 
     record.set('id', data.id);
+  },
+
+  unload: function(record) {
+    this.removeFromCache(record.constructor, record.get('id'));
   },
 
   rollback: function(record) {
@@ -273,8 +279,8 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
         record.set('isSaving', false);
       });
     } else if(record.get('isDeleted')) {
-      return record.constructor.adapter.deleteRecord(this, record.constructor, record.get('id')).then(function(data) {
-        self.unload(record.get('id'));
+      return record.constructor.adapter.deleteRecord(this, record.constructor, record).then(function(data) {
+        self.unload(record);
         return data;
       });
     } else if(record.get('isDirty')){
