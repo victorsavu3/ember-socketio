@@ -99,6 +99,9 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
 
   unload: function(record) {
     this.removeFromCache(record.constructor, record.get('id'));
+
+    this.trigger('record:destroy', record);
+    this.trigger('record:' + record.typeKey + ':destroy', record);
   },
 
   rollback: function(record) {
@@ -241,9 +244,25 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
       return Ember.RSVP.resolve(this.fetch(type, query), "find fetching record (single)");
     } else if(_.isUndefined(query)) {
       if(type.allLoaded) {
-        return Ember.RSVP.resolve(this.all(type), "find loading all records from cache");
+        var promise = Ember.RSVP.resolve(this.all(type)).then(function(data) {
+          return DS.RecordArray.create({
+            content: data,
+            store: self,
+            type: type
+          })
+        });
+
+        return Ember.RSVP.resolve(promise, "find loading all records from cache");
       } else {
-        return Ember.RSVP.resolve(this.fetch(type, query), "find fetching all records");
+        var promise = this.fetch(type, query).then(function(data) {
+          return DS.RecordArray.create({
+            content: data,
+            store: self,
+            type: type
+          })
+        });
+
+        return Ember.RSVP.resolve(promise, "find fetching all records");
       }
     } else {
       throw new Ember.Error("Invalid query for find");
@@ -260,6 +279,9 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
     _.each(data, function(value, key) {
       record.set(key, value);
     });
+
+    this.trigger('record:create', record);
+    this.trigger('record:' + record.constructor.typeKey + ':create', record);
 
     return record;
   },
