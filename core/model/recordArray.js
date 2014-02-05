@@ -1,6 +1,6 @@
 DS.RecordArray = Ember.ArrayProxy.extend({
   arrangedContent: function() {
-    return Ember.A(this.get('content'));
+    return this.get('content');
   }.property('content.[]'),
 
   init: function() {
