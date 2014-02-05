@@ -2,8 +2,9 @@ DS.Adapter = Ember.Object.extend({
   callMany: function(store, type, entitys, what) {
     var promises = [];
 
+    var self = this;
     _.each(entitys, function(entity){
-      promises.push(what(store, type, entity));
+      promises.push(what.call(self, store, type, entity));
     });
 
     return Ember.RSVP.Promise.all(promises);
