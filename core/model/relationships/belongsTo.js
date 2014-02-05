@@ -40,7 +40,13 @@ DS.BelongsToRelationship = DS.Relationship.extend({
     if(this.type.sync) {
       return this.get('getValue');
     } else {
-      return DS.PromiseObject.create({promise: this.get('store').find(this.type.type, this.get('getId'))});
+      var id = this.get('getId');
+
+      if(_.isUndefined(id)) {
+        return;
+      } else {
+        return DS.PromiseObject.create({promise: this.get('store').find(this.type.type, id)});
+      }
     }
   }.property('getValue'),
 

@@ -27,5 +27,12 @@ DS.JSONSerializer = DS.Serializer.extend({
     store.load(record, data);
 
     return record;
+  },
+
+  load: function(store, type, record, data) {
+    store.loadRelationships(record, data);
+    store.loadAttributes(record, data);
+
+    record.set('id', data.id);
   }
 })

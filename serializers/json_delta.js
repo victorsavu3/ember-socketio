@@ -1,4 +1,4 @@
-DS.JSONDeltaSerializer = DS.Serializer.extend({
+DS.JSONDeltaSerializer = DS.JSONSerializer.extend({
   serialize: function(store, record) {
     var serialized = {};
 
@@ -21,15 +21,5 @@ DS.JSONDeltaSerializer = DS.Serializer.extend({
     });
 
     return serialized;
-  },
-
-  deserialize: function(store, type, data) {
-    var record = store.getModel(type).create({
-      store: store
-    });
-
-    store.load(record, data);
-
-    return record;
   }
 })
