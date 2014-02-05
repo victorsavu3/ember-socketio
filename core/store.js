@@ -49,7 +49,7 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
 
         if(type === "model") {
           lookup.adapter = this.container.lookup('adapter:' + name) || this.container.lookup('adapter:application') || this.adapter;
-          lookup.serializer = this.container.lookup('serializer:' + name) || this.container.lookup('serializer:application') || this.serializer;
+          lookup.serializer = this.container.lookup('serializer:' + name)  || lookup.adapter.serializer || this.container.lookup('serializer:application') || this.serializer;
         }
 
         return lookup;
