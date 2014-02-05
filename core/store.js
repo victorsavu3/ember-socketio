@@ -101,7 +101,7 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
     this.removeFromCache(record.constructor, record.get('id'));
 
     this.trigger('record:destroy', record);
-    this.trigger('record:' + record.typeKey + ':destroy', record);
+    this.trigger('record:' + record.constructor.typeKey + ':destroy', record);
   },
 
   rollback: function(record) {

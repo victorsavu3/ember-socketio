@@ -6,6 +6,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
   },
 
   destroy: function() {
+    Ember.assert('Record is already destroyed', !this.get('isDeleted'))
     this.set('isDeleted', true)
   },
 

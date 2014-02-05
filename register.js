@@ -20,6 +20,7 @@ Ember.onLoad('Ember.Application', function(Application) {
       application.register('transform:date', DS.DateTransform);
       application.register('transform:number', DS.NumberTransform);
       application.register('transform:string', DS.StringTransform);
+      application.register('transform:array', DS.ArrayTransform);
     }
   });
 

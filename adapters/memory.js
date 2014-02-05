@@ -1,6 +1,8 @@
 DS.MemoryAdapter = DS.Adapter.extend({
   init: function() {
     this.cache = {};
+
+    this.serializer = DS.JSONSerializer.create();
   },
 
   findAll: function(type) {
@@ -13,32 +15,32 @@ DS.MemoryAdapter = DS.Adapter.extend({
     return Ember.RSVP.resolve(result);
   },
 
-  find: function(type, id) {
+  find: function(store, type, id) {
     this.cache[Ember.guidFor(type)] = this.cache[Ember.guidFor(type)] || {};
 
     return Ember.RSVP.resolve(this.cache[Ember.guidFor(type)][id]);
   },
 
-  createRecord: function(type, record) {
+  createRecord: function(store, type, record) {
     this.cache[Ember.guidFor(type)] = this.cache[Ember.guidFor(type)] || {};
 
-    this.cache[Ember.guidFor(type)][record.id] = record;
+    this.cache[Ember.guidFor(type)][record.get('id')] = store.serialize(record);
 
-    return Ember.RSVP.resolve(record);
+    return Ember.RSVP.resolve(this.cache[Ember.guidFor(type)][record.get('id')]);
   },
 
-  updateRecord: function(type, record) {
+  updateRecord: function(store, type, record) {
     this.cache[Ember.guidFor(type)] = this.cache[Ember.guidFor(type)] || {};
 
-    this.cache[Ember.guidFor(type)][record.id] = record;
+    this.cache[Ember.guidFor(type)][record.get('id')] = store.serialize(record)
 
-    return Ember.RSVP.resolve(record);
+    return Ember.RSVP.resolve(this.cache[Ember.guidFor(type)][record.get('id')]);
   },
 
-  deleteRecord: function(type, record) {
+  deleteRecord: function(store, type, record) {
     this.cache[Ember.guidFor(type)] = this.cache[Ember.guidFor(type)] || {};
 
-    delete this.cache[Ember.guidFor(type)][record.id];
+    delete this.cache[Ember.guidFor(type)][record.get('id')];
 
     return Ember.RSVP.resolve(record);
   }
