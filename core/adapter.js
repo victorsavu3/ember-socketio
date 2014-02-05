@@ -14,21 +14,21 @@ DS.Adapter = Ember.Object.extend({
 
   find: Ember.required(Function),
   findMany: function(store, type, ids) {
-    return callMany(store, type, ids, this.find);
+    return this.callMany(store, type, ids, this.find);
   },
 
   createRecord: Ember.required(Function),
   createMany: function(store, type, records) {
-    return callMany(store, type, records, this.createRecord);
+    return this.callMany(store, type, records, this.createRecord);
   },
 
   updateRecord: Ember.required(Function),
   updateMany: function(store, type, records) {
-    return callMany(store, type, records, this.updateRecord);
+    return this.callMany(store, type, records, this.updateRecord);
   },
 
   deleteRecord: Ember.required(Function),
   deleteMany: function(store, type, ids) {
-    return callMany(store, type, ids, this.deleteRecord);
+    return this.callMany(store, type, ids, this.deleteRecord);
   }
 })
