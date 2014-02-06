@@ -9,10 +9,12 @@ DS.JSONSerializer = DS.Serializer.extend({
     });
 
     _.each(record._relationships, function(relationship) {
-      if(relationship.kind === 'belongsTo') {
+      if(relationship.type.kind === 'belongsTo') {
         serialized[relationship.type.key] = relationship.get('getId');
-      } else {
+      } else if(relationship.type.kind === 'hasMany') {
         serialized[relationship.type.key] = relationship.get('getIds');
+      } else {
+        throw new Ember.Error("Unknown relationship type " + relationship.type.kind);
       }
     });
 

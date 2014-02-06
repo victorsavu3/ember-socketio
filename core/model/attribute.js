@@ -129,7 +129,7 @@ DS.Model.reopen({
       }
     });
     return dirty;
-  })
+  }).property()
 })
 
 DS.Store.reopen({

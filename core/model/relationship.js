@@ -52,6 +52,7 @@ DS.Model.reopen({
         throw new Ember.Error("Unknown kind " + relationship.kind);
       }
 
+      meta.get('isDirty');
       meta.addObserver('isDirty', self, self.dirtyUpdate);
 
       relationships[relationship.key] = meta;
@@ -67,12 +68,12 @@ DS.Model.reopen({
   relationshipsDirty: Ember.computed(function() {
     var dirty = false;
     _.each(this.get('_relationships'), function(value, key){
-      if(value.isDirty) {
+      if(value.get('isDirty')) {
         dirty = true;
       }
     });
     return dirty;
-  })
+  }).property()
 });
 
 DS.Store.reopen({
@@ -83,11 +84,9 @@ DS.Store.reopen({
   },
 
   rollbackRelationships: function(record) {
-    _.each(record.get('_.relationships'), function(value, key) {
+    _.each(record.get('_relationships'), function(value, key) {
       value.rollback();
     });
-
-    record.notifyPropertyChange('relationshipsDirty');
   }
 });
 

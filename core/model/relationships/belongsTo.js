@@ -10,7 +10,7 @@ DS.BelongsToRelationship = DS.Relationship.extend({
   }.property('id', 'original'),
 
   isDirty: function() {
-    return this.get('id')
+    return !_.isUndefined(this.get('id'));
   }.property('id'),
 
   store: Ember.computed.alias('record.store'),
@@ -26,11 +26,16 @@ DS.BelongsToRelationship = DS.Relationship.extend({
 
     if(_.isString(value) || _.isNumber(value)) {
       this.set('id', value);
+      this.notifyPropertyChange('id');
     } else {
-      Ember.assert("Relation set to value that does not have an id", value.get('id'));
-      Ember.assert("Relation set to value that does not have the proper type, expected " + this.type.type.name, value instanceof this.type.type);
+      if(_.isUndefined(value) || _.isNull(value)) {
+        this.set('id');
+      } else {
+        Ember.assert("Relation set to value that does not have an id", value.get('id'));
+        Ember.assert("Relation set to value that does not have the proper type, expected " + this.type.type.name, value instanceof this.type.type);
 
-      this.set('id', value.get('id'));
+        this.set('id', value.get('id'));
+      }
     }
 
     if(this.type.eager) {

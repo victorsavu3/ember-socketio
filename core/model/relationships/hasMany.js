@@ -10,7 +10,7 @@ DS.HasManyRelationship = DS.Relationship.extend({
   }.property('ids', 'original'),
 
   isDirty: function() {
-    return this.get('ids')
+    return !_.isUndefined(this.get('ids'));
   }.property('ids'),
 
   store: Ember.computed.alias('record.store'),
