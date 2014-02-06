@@ -171,6 +171,8 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
 
         var promise = type.adapter.find(this, type, query).then(function(data) {
           self.load(record, data);
+
+          return record;
         }, function(err) {
           self.removeFromCache(type, query);
           throw err;
