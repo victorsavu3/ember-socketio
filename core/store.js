@@ -138,6 +138,45 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
     }
   },
 
+  fetchAllRequired: function(record) {
+    var self = this;
+    var promises = [];
+
+    _.each(record._relationships, function(relationship) {
+      if(relationship.type.sync) {
+        if(relationship.type.kind === 'belongsTo') {
+          if(relationship.get('getId')) promises.push(self.find(record.constructor, relationship.get('getId')));
+        } else if(relationship.type.kind === 'hasMany') {
+          promises.push(self.find(record.constructor, relationship.get('getIds')));
+        } else {
+          throw new Ember.Error("Unknown relationship type " + relationship.type.kind);
+        }
+      }
+    });
+
+    if(promises.length === 0) return Ember.RSVP.resolve(record, "no sync relationships");
+
+    return Ember.RSVP.resolve(Ember.RSVP.all(promises), "fetching all sync relationships");
+  },
+
+  fetchAllRequiredPromise: function(promise) {
+    var self = this;
+
+    return promise.then(function(record) {
+      if(_.isArray(record)) {
+        return Ember.RSVP.all([Ember.RSVP.resolve(record),
+          Ember.RSVP.all(record.map(function(data){
+            return self.fetchAllRequired(record);
+          }))
+        ]);
+      } else {
+        return Ember.RSVP.all([Ember.RSVP.resolve(record), self.fetchAllRequired(record)]);
+      }
+    }).then(function(data) {
+      return data[0];
+    });
+  },
+
   fetch: function(type, query) {
     type = this.getModel(type);
     var self = this;
@@ -149,7 +188,7 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
         });
       });
 
-      return Ember.RSVP.resolve(promise, "fetching many records (array)");
+      return Ember.RSVP.resolve(this.fetchAllRequiredPromise(promise), "fetching many records (array)");
     } else if(_.isObject(query)) {
       var promise = type.adapter.findQuery(this, type, query).then(function(data) {
         return data.map(function(element) {
@@ -157,7 +196,7 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
         });
       });
 
-      return Ember.RSVP.resolve(promise, "fetching many records (query)");
+      return Ember.RSVP.resolve(this.fetchAllRequiredPromise(promise), "fetching many records (query)");
     } else if(_.isNumber(query) || _.isString(query)){
       var existing = this.loadFromCache(type, query);
 
@@ -182,7 +221,7 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
 
         record.promise = promise;
 
-        return Ember.RSVP.resolve(promise, "fetching single record");
+        return Ember.RSVP.resolve(this.fetchAllRequiredPromise(promise), "fetching single record");
       }
     } else if(_.isUndefined(query)) {
       var promise = type.adapter.findAll(this, type).then(function(data) {
