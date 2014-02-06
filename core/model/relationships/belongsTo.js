@@ -16,8 +16,9 @@ DS.BelongsToRelationship = DS.Relationship.extend({
   store: Ember.computed.alias('record.store'),
 
   getValue: function() {
+    if(_.isUndefined(this.get('getId'))) return;
     var value =  this.get('store').getRecord(this.type.type, this.get('getId'));
-    Ember.assert("Sanity check failed (sync relationship used before data available)", _.isUndefined(value));
+    Ember.assert("Sanity check failed (sync relationship used before data available)", !_.isUndefined(value));
     return value;
   }.property('getId'),
 
