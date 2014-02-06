@@ -9,6 +9,10 @@ DS.HasManyRelationship = DS.Relationship.extend({
     }
   }.property('ids', 'original'),
 
+  isDirty: function() {
+    return this.get('ids')
+  }.property('ids'),
+
   store: Ember.computed.alias('record.store'),
 
   getValue: function() {
@@ -31,8 +35,6 @@ DS.HasManyRelationship = DS.Relationship.extend({
     }
 
     if(_.equals(value, this.get('ids'))) return;
-
-    this.set('isDirty', true);
 
     if(value.every(function(value){
       return _.isNumber(value) || _.isString(value);
@@ -88,9 +90,7 @@ DS.HasManyRelationship = DS.Relationship.extend({
   },
 
   rollback: function() {
-    this.set('isDirty', false);
-
-    this.set('id')
+    this.set('ids');
   },
 
   notifyer:function(){

@@ -9,6 +9,10 @@ DS.BelongsToRelationship = DS.Relationship.extend({
     }
   }.property('id', 'original'),
 
+  isDirty: function() {
+    return this.get('id')
+  }.property('id'),
+
   store: Ember.computed.alias('record.store'),
 
   getValue: function() {
@@ -19,8 +23,6 @@ DS.BelongsToRelationship = DS.Relationship.extend({
 
   setValue: function(value) {
     if(this.type.readOnly) throw new Ember.Error("Relation is read only");
-
-    this.set('isDirty', true);
 
     if(_.isString(value) || _.isNumber(value)) {
       this.set('id', value);
@@ -60,8 +62,6 @@ DS.BelongsToRelationship = DS.Relationship.extend({
   },
 
   rollback: function() {
-    this.set('isDirty', false);
-
     this.set('id')
   },
 

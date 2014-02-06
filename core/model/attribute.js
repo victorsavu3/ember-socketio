@@ -37,7 +37,7 @@ DS.Attribute = Ember.Object.extend(Ember.Evented, {
   },
 
   rollback: function() {
-    delete this.value;
+    this.set('value');
   },
 
   notifyer:function(){
