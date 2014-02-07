@@ -16,7 +16,7 @@ DS.HasManyRelationship = DS.Relationship.extend({
   store: Ember.computed.alias('record.store'),
 
   getValue: function() {
-    var value =  this.get('store').getRecord(this.type.type, this.get('getIds'));
+    var value =  this.get('store').getRecord(this.get('getType'), this.get('getIds'));
 
     Ember.assert("Sanity check failed (sync relationship used before data available)", _.every(value, function(element) {
       return !_.isUndefined(element);
@@ -34,7 +34,7 @@ DS.HasManyRelationship = DS.Relationship.extend({
       value = _.sortBy(value, 'id');
     }
 
-    if(_.equals(value, this.get('ids'))) return;
+    if(_.isEqual(value, this.get('ids'))) return;
 
     if(value.every(function(value){
       return _.isNumber(value) || _.isString(value);
@@ -46,15 +46,15 @@ DS.HasManyRelationship = DS.Relationship.extend({
       Ember.assert("Relation set to value that does not have an id", value.every(function(value){
         return value.get('id');
       }));
-      Ember.assert("Relation set to value that does not have the proper type, expected " + this.type.type.name, value.every(function(value){
-        return value instanceof this.type.type;
+      Ember.assert("Relation set to value that does not have the proper type, expected " + this.get('getType').name, value.every(function(value){
+        return value instanceof this.get('getType');
       }));
 
       this.set('ids', value.mapBy('id'));
     }
 
     if(this.type.eager) {
-      this.get('store').find(this.type.type, this.get('ids'));
+      this.get('store').find(this.get('getType'), this.get('ids'));
     }
   },
 
@@ -67,7 +67,7 @@ DS.HasManyRelationship = DS.Relationship.extend({
       if(_.isUndefined(ids)) {
         return;
       } else {
-        return DS.PromiseArray.create({promise: this.get('store').find(this.type.type, ids)});
+        return DS.PromiseArray.create({promise: this.get('store').find(this.get('getType'), ids)});
       }
     }
   }.property('getValue'),
@@ -78,7 +78,7 @@ DS.HasManyRelationship = DS.Relationship.extend({
     }
 
     if(this.type.embedded) {
-      this.get('store').push(this.type.type, value);
+      this.get('store').push(this.get('getType'), value);
 
       var ids = value.mapBy('id');
       if(_.isEqual(this.get('original'), ids)) return;

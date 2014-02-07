@@ -17,7 +17,7 @@ DS.BelongsToRelationship = DS.Relationship.extend({
 
   getValue: function() {
     if(_.isUndefined(this.get('getId'))) return;
-    var value =  this.get('store').getRecord(this.type.type, this.get('getId'));
+    var value =  this.get('store').getRecord(this.get('getType'), this.get('getId'));
     Ember.assert("Sanity check failed (sync relationship used before data available)", !_.isUndefined(value));
     return value;
   }.property('getId'),
@@ -33,14 +33,14 @@ DS.BelongsToRelationship = DS.Relationship.extend({
         this.set('id');
       } else {
         Ember.assert("Relation set to value that does not have an id", value.get('id'));
-        Ember.assert("Relation set to value that does not have the proper type, expected " + this.type.type.name, value instanceof this.type.type);
+        Ember.assert("Relation set to value that does not have the proper type, expected " + this.get('getType').name, value instanceof this.get('getType'));
 
         this.set('id', value.get('id'));
       }
     }
 
     if(this.type.eager) {
-      this.get('store').find(this.type.type, this.get('id'));
+      this.get('store').find(this.get('getType'), this.get('id'));
     }
   },
 
@@ -53,7 +53,7 @@ DS.BelongsToRelationship = DS.Relationship.extend({
       if(_.isUndefined(id)) {
         return;
       } else {
-        return DS.PromiseObject.create({promise: this.get('store').find(this.type.type, id)});
+        return DS.PromiseObject.create({promise: this.get('store').find(this.get('getType'), id)});
       }
     }
   }.property('getValue'),

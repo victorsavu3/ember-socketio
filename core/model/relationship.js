@@ -15,7 +15,8 @@ DS.Model.reopenClass({
           readOnly: meta.options.readOnly,
           default: meta.options.default,
           embedded: meta.options.embedded,
-          isSet: meta.options.isSet
+          isSet: meta.options.isSet,
+          polymorphic: meta.options.polymorphic
         };
       }
     });
@@ -25,7 +26,33 @@ DS.Model.reopenClass({
 });
 
 DS.Relationship = Ember.Object.extend(Ember.Evented, {
-  rollback: Ember.required(Function)
+  rollback: Ember.required(Function),
+
+  init: function() {
+    this._super();
+
+    if(this.type.polymorphic) {
+      this.set('polymorhpicField', Ember.computed.alias('record.') + this.type.polymorphic.field);
+    }
+  },
+
+  getType: function() {
+    if(this.type.polymorphic) {
+      return this.get('polymorhpicType');
+    } else {
+      return this.type.type;
+    }
+  }.property('polymorhpicType'),
+
+  polymorhpicType: function(){
+    if(_.isFunction(this.type.polymorphic.mapping)) {
+      return this.type.polymorphic.mapping(this.get('polymorhpicField'));
+    } else if(_.isObject(this.type.polymorphic.mapping)) {
+      return this.store.getModel(this.type.polymorphic.mapping[this.get('polymorhpicField')]);
+    } else {
+      throw new Ember.Error("polymorphic.mapping must be a function or a hash");
+    }
+  }.property('polymorhpicField')
 });
 
 DS.Model.reopen({
