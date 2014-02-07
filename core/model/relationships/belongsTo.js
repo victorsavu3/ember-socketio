@@ -77,6 +77,13 @@ DS.BelongsToRelationship = DS.Relationship.extend({
 });
 
 DS.belongsTo = function(type, options) {
+  Ember.assert("type must be given or relationship is polymorphic", _.isString(type) || (_.isObject(type) && type.polymorphic));
+
+  if(_.isObject(type)) {
+    options = type;
+    type = null;
+  }
+
   var meta = {
     type: type,
     isRelationship: true,

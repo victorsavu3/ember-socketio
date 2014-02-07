@@ -32,8 +32,13 @@ DS.Relationship = Ember.Object.extend(Ember.Evented, {
     this._super();
 
     if(this.type.polymorphic) {
-      this.set('polymorhpicField', Ember.computed.alias('record.') + this.type.polymorphic.field);
+      this.addObserver('record.' + this.type.polymorphic.field, this, this.setpolymorhpicField);
+      this.setpolymorhpicField();
     }
+  },
+
+  setpolymorhpicField: function() {
+    this.set('polymorhpicField', this.get('record.' + this.type.polymorphic.field));
   },
 
   getType: function() {
@@ -48,7 +53,8 @@ DS.Relationship = Ember.Object.extend(Ember.Evented, {
     if(_.isFunction(this.type.polymorphic.mapping)) {
       return this.type.polymorphic.mapping(this.get('polymorhpicField'));
     } else if(_.isObject(this.type.polymorphic.mapping)) {
-      return this.store.getModel(this.type.polymorphic.mapping[this.get('polymorhpicField')]);
+      var typeName = this.type.polymorphic.mapping[this.get('polymorhpicField')];
+      return this.record.store.getModel(typeName);
     } else {
       throw new Ember.Error("polymorphic.mapping must be a function or a hash");
     }
