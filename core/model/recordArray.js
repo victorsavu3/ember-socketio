@@ -21,15 +21,28 @@ DS.RecordArray = Ember.ArrayProxy.extend({
 
       var ret = this.get('content');
 
-      if(this.get('sort')) {
-        ret =  ret.sortBy('sort');
+      if(this.get('sort_by')) {
+        ret =  ret.sortBy(this.get('sort_by'));
+
+        var self = this;
+        ret.forEach(function(data) {
+          data.addObserver(self.get('sort_by'), self, self.arrangedContentChanged);
+        });
+      }
+
+      if(!this.get('ascending')) {
+        ret = ret.reverse();
       }
 
       return ret.slice(page * per_page, (page + 1) * per_page);
     } else {
       return this.get('content');
     }
-  }.property('content.@each', 'page', 'per_page'),
+  }.property('content.@each', 'page', 'per_page', 'sort_by', 'ascending'),
+
+  arrangedContentChanged: function() {
+    this.notifyPropertyChange('arrangedContent');
+  },
 
   init: function() {
     this._super();

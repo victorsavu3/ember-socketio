@@ -270,7 +270,9 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
         type: type,
         page: page,
         per_page: per_page,
-        total: type.Pagination.total
+        total: type.Pagination.total,
+        sort_by: type.Pagination.sort_by,
+        ascending: type.Pagination.ascending
       })
     });
 
