@@ -254,6 +254,29 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
     return ret;
   },
 
+  findPage: function(type, per_page, page) {
+    type = this.getModel(type);
+    var self = this;
+
+    Ember.assert("Pagination information not available", type.Pagination);
+
+    var promise = this.find(type, {
+      page_no: page,
+      per_page: per_page
+    }).then(function(data) {
+      return DS.RecordArray.create({
+        content: data,
+        store: self,
+        type: type,
+        page: page,
+        per_page: per_page,
+        total: type.Pagination.total
+      })
+    });
+
+    return Ember.RSVP.resolve(promise, "find fetching page (" + page + '@' + per_page + ')');
+  },
+
   find: function(type, query) {
     type = this.getModel(type);
     var self = this;
