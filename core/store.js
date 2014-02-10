@@ -145,9 +145,11 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
     _.each(record._relationships, function(relationship) {
       if(relationship.type.sync) {
         if(relationship.type.kind === 'belongsTo') {
-          if(relationship.get('getId')) promises.push(self.find(record.constructor, relationship.get('getId')));
+          if(relationship.get('getId')){
+            promises.push(self.find(relationship.get('getType'), relationship.get('getId')));
+          }
         } else if(relationship.type.kind === 'hasMany') {
-          promises.push(self.find(record.constructor, relationship.get('getIds')));
+          promises.push(self.find(relationship.get('getType'), relationship.get('getIds')));
         } else {
           throw new Ember.Error("Unknown relationship type " + relationship.type.kind);
         }
@@ -166,7 +168,7 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
       if(_.isArray(record)) {
         return Ember.RSVP.all([Ember.RSVP.resolve(record),
           Ember.RSVP.all(record.map(function(data){
-            return self.fetchAllRequired(record);
+            return self.fetchAllRequired(data);
           }))
         ]);
       } else {
@@ -234,7 +236,7 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
         return result;
       });
 
-      return Ember.RSVP.resolve(promise, "fetching all records");
+      return Ember.RSVP.resolve(this.fetchAllRequiredPromise(promise), "fetching all records");
     } else {
       throw new Ember.Error("Invalid query for fetch");
     }
