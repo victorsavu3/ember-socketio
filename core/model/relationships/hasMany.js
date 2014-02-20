@@ -20,7 +20,6 @@ DS.HasManyRelationship = DS.Relationship.extend({
       return;
     }
 
-
     var value =  this.get('store').getRecord(this.get('getType'), this.get('getIds'));
 
     Ember.assert("Sanity check failed (sync relationship used before data available)", _.every(value, function(element) {
@@ -51,8 +50,10 @@ DS.HasManyRelationship = DS.Relationship.extend({
       Ember.assert("Relation set to value that does not have an id", value.every(function(value){
         return value.get('id');
       }));
+
+      var self = this;
       Ember.assert("Relation set to value that does not have the proper type, expected " + this.get('getType').name, value.every(function(value){
-        return value instanceof this.get('getType');
+        return value instanceof self.get('getType');
       }));
 
       this.set('ids', value.mapBy('id'));
