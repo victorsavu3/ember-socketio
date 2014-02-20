@@ -16,6 +16,11 @@ DS.HasManyRelationship = DS.Relationship.extend({
   store: Ember.computed.alias('record.store'),
 
   getValue: function() {
+    if(_.isUndefined(this.get('getIds'))) {
+      return;
+    }
+
+
     var value =  this.get('store').getRecord(this.get('getType'), this.get('getIds'));
 
     Ember.assert("Sanity check failed (sync relationship used before data available)", _.every(value, function(element) {
@@ -70,7 +75,7 @@ DS.HasManyRelationship = DS.Relationship.extend({
         return DS.PromiseArray.create({promise: this.get('store').find(this.get('getType'), ids)});
       }
     }
-  }.property('getValue'),
+  }.property('getValue', 'getIds'),
 
   load: function(value) {
     if(this.type.isSet) {
@@ -99,6 +104,14 @@ DS.HasManyRelationship = DS.Relationship.extend({
 });
 
 DS.hasMany = function(type, options) {
+  Ember.assert("type must be given or relationship is polymorphic", _.isString(type) || (_.isObject(type) && type.polymorphic));
+
+  if(_.isObject(type)) {
+    options = type;
+    type = null;
+  }
+
+
   var meta = {
     type: type,
     isRelationship: true,
