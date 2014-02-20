@@ -50,6 +50,8 @@ DS.Relationship = Ember.Object.extend(Ember.Evented, {
   }.property('polymorhpicType'),
 
   polymorhpicType: function(){
+    Ember.assert('polymorphic relationship type is not defined', this.get('polymorhpicField'))
+
     if(_.isFunction(this.type.polymorphic.mapping)) {
       return this.type.polymorphic.mapping(this.get('polymorhpicField'));
     } else if(_.isObject(this.type.polymorphic.mapping)) {
