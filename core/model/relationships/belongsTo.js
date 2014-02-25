@@ -5,7 +5,7 @@ DS.BelongsToRelationship = DS.Relationship.extend({
     } else if(this.get('original')){
       return this.get('original');
     } else {
-      return _.result(this.type.default);
+      return _.result(this.type, 'defaultValue');
     }
   }.property('id', 'original'),
 

@@ -13,7 +13,7 @@ DS.Model.reopenClass({
           sync: meta.options.sync,
           eager: meta.options.eager,
           readOnly: meta.options.readOnly,
-          default: meta.options.default,
+          defaultValue: meta.options.defaultValue,
           embedded: meta.options.embedded,
           isSet: meta.options.isSet,
           polymorphic: meta.options.polymorphic

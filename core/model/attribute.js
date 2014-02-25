@@ -5,11 +5,7 @@ DS.Attribute = Ember.Object.extend(Ember.Evented, {
     } else if(!_.isUndefined(this.original)){
       return this.original;
     } else {
-      if(_.isFunction(this.default)) {
-        return this.default(this);
-      } else {
-        return this.default;
-      }
+      return _.result(this.type, 'defaultValue');
     }
   }.property('value', 'original'),
 
@@ -87,7 +83,7 @@ DS.Model.reopenClass({
           transform: this.store.getTransform(meta.type),
 
           // options
-          default: meta.options.default,
+          defaultValue: meta.options.defaultValue,
           readOnly: meta.options.readOnly,
           optional: meta.options.optional
         };
