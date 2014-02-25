@@ -254,6 +254,27 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
     return ret;
   },
 
+  findWithFields: function(type, id, fields) {
+    var ret;
+
+    if(!_.isArray(fields)) {
+      Ember.assert('fields should be a string or an array of strings', _.isString(fields));
+      fields = [fields];
+    }
+
+    return this.find(type, id).then(function(record) {
+      ret = record;
+
+      var promises = fields.map(function(field) {
+        return record.get(field).get('promise');
+      })
+
+      return Ember.RSVP.all(promises);
+    }).then(function(data) {
+      return ret;
+    });
+  },
+
   findPage: function(type, per_page, page) {
     type = this.getModel(type);
     var self = this;
