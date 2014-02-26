@@ -181,10 +181,11 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
 
   fetch: function(type, query) {
     type = this.getModel(type);
-    var self = this;
+    var promise;
 
+    var self = this;
     if(_.isArray(query)) {
-      var promise = type.adapter.findMany(this, type, query).then(function(data) {
+      promise = type.adapter.findMany(this, type, query).then(function(data) {
         return data.map(function(element) {
           return self.push(type, element);
         });
@@ -192,7 +193,7 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
 
       return Ember.RSVP.resolve(this.fetchAllRequiredPromise(promise), "fetching many records (array)");
     } else if(_.isObject(query)) {
-      var promise = type.adapter.findQuery(this, type, query).then(function(data) {
+      promise = type.adapter.findQuery(this, type, query).then(function(data) {
         return data.map(function(element) {
           return self.push(type, element);
         });
@@ -210,7 +211,7 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
         record.set('id', query);
         this.addToCache(type, record);
 
-        var promise = type.adapter.find(this, type, query).then(function(data) {
+        promise = type.adapter.find(this, type, query).then(function(data) {
           self.load(record, data);
 
           return record;
@@ -226,7 +227,7 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
         return Ember.RSVP.resolve(this.fetchAllRequiredPromise(promise), "fetching single record");
       }
     } else if(_.isUndefined(query)) {
-      var promise = type.adapter.findAll(this, type).then(function(data) {
+      promise = type.adapter.findAll(this, type).then(function(data) {
         var result =  data.map(function(element) {
           return self.push(type, element);
         });
@@ -267,10 +268,10 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
 
       var promises = fields.map(function(field) {
         return record.get(field).get('promise');
-      })
+      });
 
       return Ember.RSVP.all(promises);
-    }).then(function(data) {
+    }).then(function() {
       return ret;
     });
   },
@@ -302,12 +303,13 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
 
   find: function(type, query) {
     type = this.getModel(type);
+    var existing, promise;
     var self = this;
 
     if(_.isArray(query)) {
       var toGet = [];
 
-      var existing = query.map(function(element) {
+      existing = query.map(function(element) {
         var record = self.getRecord(type, element);
 
         if(record) {
@@ -320,7 +322,7 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
 
       if(toGet.length === 0) return Ember.RSVP.resolve(existing, "find returning cached records (many)");
 
-      var promise = this.fetch(type, toGet).then(function(data) {
+      promise = this.fetch(type, toGet).then(function(data) {
         var result = data;
 
         result.reverseObjects();
@@ -340,14 +342,14 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
     } else if(_.isObject(query)) {
       return Ember.RSVP.resolve(this.fetch(type, query), "find fetching records (query)");
     } else if(_.isNumber(query) || _.isString(query)){
-      var existing = this.getRecord(type, query);
+      existing = this.getRecord(type, query);
 
       if(existing) return Ember.RSVP.resolve(existing, "find returning cached record (single)");
 
       return Ember.RSVP.resolve(this.fetch(type, query), "find fetching record (single)");
     } else if(_.isUndefined(query)) {
       if(type.allLoaded) {
-        var promise = Ember.RSVP.resolve(this.all(type)).then(function(data) {
+        promise = Ember.RSVP.resolve(this.all(type)).then(function(data) {
           return DS.RecordArray.create({
             content: data,
             store: self,
@@ -357,7 +359,7 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
 
         return Ember.RSVP.resolve(promise, "find loading all records from cache");
       } else {
-        var promise = this.fetch(type, query).then(function(data) {
+        promise = this.fetch(type, query).then(function(data) {
           return DS.RecordArray.create({
             content: data,
             store: self,
@@ -372,16 +374,14 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
     }
   },
 
-  constructRecord: function(type, data) {
-    var record = this.getModel(type).create({
+  constructRecord: function(type) {
+    return this.getModel(type).create({
       store: this
     });
-
-    return record;
   },
 
   createRecord: function(type, data) {
-    var record = this.constructRecord(type, data);
+    var record = this.constructRecord(type);
 
     record.set('isNew', true);
 
