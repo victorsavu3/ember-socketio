@@ -64,7 +64,7 @@ DS.HasManyRelationship = DS.Relationship.extend({
     }
   },
 
-  value: function() {
+  valueReal: function() {
     if(this.type.sync) {
       return this.get('getValue');
     } else {
@@ -77,6 +77,28 @@ DS.HasManyRelationship = DS.Relationship.extend({
       }
     }
   }.property('getValue', 'getIds'),
+
+  value: function() {
+    var self = this;
+    return Ember.ArrayProxy.create({
+      content: self.get('valueReal'),
+
+      replaceContent: function(idx, amt, objects) {
+        var array = Ember.copy(this.get('content'));
+
+        if(amt > 0) array.removeAt(idx, amt);
+
+        if(objects.get('length') > 0) {
+          objects.reverseObjects();
+          objects.forEach(function(object) {
+            array.insertAt(idx, object);
+          })
+        }
+
+        self.setValue(array);
+      }
+    });
+  }.property('valueReal', 'isDirty'),
 
   load: function(value) {
     if(this.type.isSet) {
@@ -111,7 +133,6 @@ DS.hasMany = function(type, options) {
     options = type;
     type = null;
   }
-
 
   var meta = {
     type: type,

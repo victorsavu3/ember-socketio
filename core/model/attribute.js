@@ -9,6 +9,32 @@ DS.Attribute = Ember.Object.extend(Ember.Evented, {
     }
   }.property('value', 'original'),
 
+  valueProxy: function() {
+    if(this.type.transform.typeKey === 'array') {
+      var self = this;
+      return Ember.ArrayProxy.create({
+        content: self.get('getValue'),
+
+        replaceContent: function(idx, amt, objects) {
+          var array = Ember.copy(this.get('content'));
+
+          if(amt > 0) array.removeAt(idx, amt);
+
+          if(objects.get('length') > 0) {
+            objects.reverseObjects();
+            objects.forEach(function(object) {
+              array.insertAt(idx, object);
+            })
+          }
+
+          self.setValue(array);
+        }
+      });
+    } else {
+      return this.get('getValue');
+    }
+  }.property('getValue'),
+
   setValue: function(value) {
     if(this.type.readOnly) throw new Ember.Error("Attribute '" + key + "' is read only");
 
@@ -57,7 +83,7 @@ DS.attr = function(type, options) {
 
     if(_.isUndefined(value)) {
       // get
-      return attribute.get('getValue');
+      return attribute.get('valueProxy');
     } else {
       //set
       Ember.assert("Can not update id of record", key !== 'id');
