@@ -16,7 +16,11 @@ DS.Attribute = Ember.Object.extend(Ember.Evented, {
         content: self.get('getValue'),
 
         replaceContent: function(idx, amt, objects) {
-          var array = Ember.copy(this.get('content'));
+          var array = [];
+
+          this.get('content').forEach(function(item) {
+            array.pushObject(item);
+          });
 
           if(amt > 0) array.removeAt(idx, amt);
 
