@@ -399,20 +399,27 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
     var self = this;
 
     record.set('isSaving', true);
+    record._state.set('error');
 
     if(record.get('isNew')) {
       return record.constructor.adapter.createRecord(this, record.constructor, record).then(function(data) {
         self.load(record, data);
         record.set('isSaved', true);
-        return record;
-      })['finally'](function() {
         record.set('isNew', false);
+        return record;
+      }, function(err) {
+        record._state.set('error', err);
+        throw err;
+      })['finally'](function() {
         record.set('isSaving', false);
       });
     } else if(record.get('isDeleted')) {
       return record.constructor.adapter.deleteRecord(this, record.constructor, record).then(function(data) {
         self.unload(record);
         return data;
+      }, function(err) {
+        record._state.set('error', err);
+        throw err;
       });
     } else if(record.get('isDirty')){
       return record.constructor.adapter.updateRecord(this, record.constructor, record).then(function(data) {
@@ -422,6 +429,9 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
         record.set('isSaved', true);
 
         return record;
+      }, function(err) {
+        record._state.set('error', err);
+        throw err;
       })['finally'](function() {
         record.set('isSaving', false);
       });

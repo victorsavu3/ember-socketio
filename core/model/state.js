@@ -7,7 +7,7 @@ DS.State = Ember.Object.extend({
 
   isError: function() {
     return this.get('error');
-  }.property('state'),
+  }.property('error'),
 
   isValid: true
 });
@@ -17,10 +17,6 @@ DS.Model.reopen({
     this._super();
 
     this.set('_state', DS.State.create());
-  },
-
-  setError: function(error) {
-    this._state.setError(error);
   },
 
   isNew: Ember.computed.alias('_state.isNew'),
