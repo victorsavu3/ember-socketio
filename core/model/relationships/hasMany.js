@@ -70,8 +70,8 @@ DS.HasManyRelationship = DS.Relationship.extend({
     } else {
       var ids = this.get('getIds');
 
-      if(_.isUndefined(ids)) {
-        return;
+      if(_.isUndefined(ids) || _.isNull(ids)) {
+        return ids;
       } else {
         return DS.PromiseArray.create({promise: this.get('store').find(this.get('getType'), ids)});
       }

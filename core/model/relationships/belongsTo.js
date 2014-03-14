@@ -50,8 +50,8 @@ DS.BelongsToRelationship = DS.Relationship.extend({
     } else {
       var id = this.get('getId');
 
-      if(_.isUndefined(id)) {
-        return;
+      if(_.isUndefined(id) || _.isNull(id)) {
+        return id;
       } else {
         return DS.PromiseObject.create({promise: this.get('store').find(this.get('getType'), id)});
       }
