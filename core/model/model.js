@@ -5,6 +5,11 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     return this.get('store').save(this);
   },
 
+  rollback: function() {
+    this.get('store').rollbackAttributes(this);
+    this.get('store').rollbackRelationships(this);
+  },
+
   destroy: function() {
     Ember.assert('Record is already destroyed', !this.get('isDeleted'))
     this.set('isDeleted', true)
