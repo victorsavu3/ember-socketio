@@ -119,6 +119,8 @@ DS.HasManyRelationship = DS.Relationship.extend({
       if(_.isEqual(this.get('original'), value)) return;
       this.set('original', value);
     }
+
+    Ember.assert("Non-optional hasMany relationship '" + this.type.key +"' missing for " + this.record.constructor.typeKey, this.get('original') || this.type.optional);
   },
 
   rollback: function() {

@@ -16,7 +16,8 @@ DS.Model.reopenClass({
           defaultValue: meta.options.defaultValue,
           embedded: meta.options.embedded,
           isSet: meta.options.isSet,
-          polymorphic: meta.options.polymorphic
+          polymorphic: meta.options.polymorphic,
+          optional:  meta.options.optional
         };
       }
     });
