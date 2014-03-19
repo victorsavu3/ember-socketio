@@ -1,3 +1,24 @@
+DS.UpdateInterceptor = Ember.ArrayProxy.extend(DS.PromiseArrayForward, {
+  replaceContent: function(idx, amt, objects) {
+    var array = [];
+
+    this.get('content').forEach(function(item) {
+      array.pushObject(item);
+    });
+
+    if(amt > 0) array.removeAt(idx, amt);
+
+    if(objects.get('length') > 0) {
+      objects.reverseObjects();
+      objects.forEach(function(object) {
+        array.insertAt(idx, object);
+      })
+    }
+
+    self.setValue(array);
+  }
+});
+
 DS.HasManyRelationship = DS.Relationship.extend({
   getIds: function() {
     if(this.get('ids')) {
@@ -80,28 +101,9 @@ DS.HasManyRelationship = DS.Relationship.extend({
 
   value: function() {
     var self = this;
-    return Ember.ArrayProxy.create({
-      content: self.get('valueReal'),
-
-      replaceContent: function(idx, amt, objects) {
-        var array = [];
-
-        this.get('content').forEach(function(item) {
-          array.pushObject(item);
-        });
-
-        if(amt > 0) array.removeAt(idx, amt);
-
-        if(objects.get('length') > 0) {
-          objects.reverseObjects();
-          objects.forEach(function(object) {
-            array.insertAt(idx, object);
-          })
-        }
-
-        self.setValue(array);
-      }
-    });
+    return DS.UpdateInterceptor.create({
+      content: self.get('valueReal')
+    })
   }.property('valueReal', 'isDirty'),
 
   load: function(value) {
