@@ -66,7 +66,7 @@ DS.BelongsToRelationship = DS.Relationship.extend({
       this.set('original', value);
     }
 
-    Ember.assert("Non-optional belongsTo relationship '" + this.type.key +"' missing for " + this.record.constructor.typeKey, this.get('original') || this.type.optional);
+    Ember.warn("Non-optional belongsTo relationship '" + this.type.key +"' missing for " + this.record.constructor.typeKey, this.get('original') || this.type.optional);
   },
 
   rollback: function() {

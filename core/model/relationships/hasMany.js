@@ -115,11 +115,11 @@ DS.HasManyRelationship = DS.Relationship.extend({
       this.get('store').push(this.get('getType'), value);
 
       var ids = value.mapBy('id');
-      Ember.assert("Non-optional hasMany relationship '" + this.type.key +"' missing for " + this.record.constructor.typeKey, ids || this.type.optional);
+      Ember.warn("Non-optional hasMany relationship '" + this.type.key +"' missing for " + this.record.constructor.typeKey, ids || this.type.optional);
       if(_.isEqual(this.get('original'), ids)) return;
       this.set('original', ids);
     } else {
-      Ember.assert("Non-optional hasMany relationship '" + this.type.key +"' missing for " + this.record.constructor.typeKey, value || this.type.optional);
+      Ember.warn("Non-optional hasMany relationship '" + this.type.key +"' missing for " + this.record.constructor.typeKey, value || this.type.optional);
       if(_.isEqual(this.get('original'), value)) return;
       this.set('original', value);
     }
