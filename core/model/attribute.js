@@ -10,7 +10,25 @@ DS.Attribute = Ember.Object.extend(Ember.Evented, {
   }.property('value', 'original'),
 
   valueProxy: function() {
-    if(this.type.transform.typeKey === 'array') {
+    if(this.type.transform.typeKey === 'json') {
+      if(this.get('value')) return this.get('value');
+
+      var self = this;
+      return Ember.Object.create({
+        content: this.get('getValue'),
+
+        unknownProperty: function(key) {
+          return this.get('content')[key];
+        },
+
+        setUnknownProperty: function(key, value){
+          self.set('value', Ember.copy(this.get('content'), true));
+          self.set('value.' + key, value);
+
+          return value;
+        }
+      })
+    } else if(this.type.transform.typeKey === 'array') {
       var self = this;
       return Ember.ArrayProxy.create({
         content: self.get('getValue'),
@@ -59,7 +77,7 @@ DS.Attribute = Ember.Object.extend(Ember.Evented, {
   },
 
   unload: function() {
-    return this.type.transform.deserialize(this.get('getValue'));
+    return this.type.transform.serialize(this.get('getValue'));
   },
 
   rollback: function() {
