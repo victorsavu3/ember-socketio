@@ -11,17 +11,36 @@ DS.Attribute = Ember.Object.extend(Ember.Evented, {
 
   valueProxy: function() {
     if(this.type.transform.typeKey === 'json') {
-      if(this.get('value')) return this.get('value');
+      if(this.get('value')) {
+        return Ember.ObjectProxy.create({
+          content:this.get('value'),
+
+          markDirty: function() {}
+        });
+      }
 
       var self = this;
       return Ember.Object.create({
         content: this.get('getValue'),
 
         unknownProperty: function(key) {
+          if(self.get('value')) return self.get('value')[key];
+
           return this.get('content')[key];
         },
 
-        setUnknownProperty: function(key, value){
+        markDirty: function() {
+          if(self.get('value')) return;
+
+          self.set('value', Ember.copy(this.get('content'), true));
+        },
+
+        setUnknownProperty: function(key, value) {
+          if(self.get('value')) {
+            self.set('value.' + key, value);
+            return value;
+          }
+
           self.set('value', Ember.copy(this.get('content'), true));
           self.set('value.' + key, value);
 
