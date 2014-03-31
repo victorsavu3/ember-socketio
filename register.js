@@ -22,6 +22,7 @@ Ember.onLoad('Ember.Application', function(Application) {
       application.register('transform:string', DS.StringTransform);
       application.register('transform:array', DS.ArrayTransform);
       application.register('transform:json', DS.JsonTransform);
+      application.register('transform:object', DS.ObjectTransform);
     }
   });
 
