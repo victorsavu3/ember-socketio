@@ -72,7 +72,7 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
   },
 
   getAdapter: function(name) {
-    return this.lookup('adapter', name);
+    return this.getModel(name).adapter;
   },
 
   getRecord: function(type, id) {
