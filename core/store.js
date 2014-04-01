@@ -114,13 +114,13 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
     return record.constructor.serializer.load(this, record.constructor, record, data);
   },
 
-  push: function(type, data) {
+  push: function(type, data, internal) {
     type = this.getModel(type);
 
     if(_.isArray(data)) {
       var self = this;
       return _.map(data, function(element) {
-        return self.push(type, element);
+        return self.push(type, element, internal);
       });
     } else {
       Ember.assert("Missing id in push", data.id);
@@ -132,7 +132,20 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
         return record;
       } else {
         record = this.deserialize(type, data);
-        this.addToCache(type, record);
+
+        var self = this;
+        this.fetchAllRequired(record).then(function(frecord) {
+          self.addToCache(type, record);
+
+          self.trigger('record:create', record);
+          self.trigger('record:' + record.constructor.typeKey + ':create', record);
+
+          if(!internal) {
+            self.trigger('record:push', record);
+            self.trigger('record:' + record.constructor.typeKey + ':push', record);
+          }
+        });
+
         return record;
       }
     }
@@ -187,7 +200,7 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
     if(_.isArray(query)) {
       promise = type.adapter.findMany(this, type, query).then(function(data) {
         return data.map(function(element) {
-          return self.push(type, element);
+          return self.push(type, element, true);
         });
       });
 
@@ -195,7 +208,7 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
     } else if(_.isObject(query)) {
       promise = type.adapter.findQuery(this, type, query).then(function(data) {
         return data.map(function(element) {
-          return self.push(type, element);
+          return self.push(type, element, true);
         });
       });
 
@@ -229,7 +242,7 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
     } else if(_.isUndefined(query)) {
       promise = type.adapter.findAll(this, type).then(function(data) {
         var result =  data.map(function(element) {
-          return self.push(type, element);
+          return self.push(type, element, true);
         });
 
         type.allLoaded = true;
