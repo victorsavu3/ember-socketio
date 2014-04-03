@@ -455,7 +455,9 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
         record.set('isSaving', false);
       });
     } else {
+      record.set('isSaving', false);
       Ember.warn("Requested update for unchanged record");
+      return Ember.RSVP.resolve(record, "No changes");
     }
   }
 });
