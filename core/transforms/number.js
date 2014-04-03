@@ -10,8 +10,14 @@ DS.NumberTransform = DS.Transform.create({
     }
   },
   serialize: function(deserialized) {
-    Ember.assert("attribute is not number", _.isNumber(deserialized));
-    return deserialized;
+    if(_.isNumber(deserialized)) {
+      return deserialized;
+    } else {
+      Ember.assert("attribute can not be converted to number", _.isString(deserialized));
+      var result = parseFloat(deserialized);
+      Ember.assert("attribute is not a valid number", !_.isNaN(result));
+      return result;
+    }
   },
 
   equals: function(a, b) {
