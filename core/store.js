@@ -100,6 +100,11 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
   rollback: function(record) {
     this.rollbackRelationships(record);
     this.rollbackAttributes(record);
+    this.clearError(record);
+  },
+
+  clearError: function(record) {
+    record._state.set('error');
   },
 
   deserialize: function(type, data) {
@@ -423,6 +428,7 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
     if(record.get('isNew')) {
       return record.constructor.adapter.createRecord(this, record.constructor, record).then(function(data) {
         self.load(record, data);
+        self.rollback(record);
         record.set('isSaved', true);
         record.set('isNew', false);
         return record;

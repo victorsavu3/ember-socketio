@@ -6,8 +6,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
   },
 
   rollback: function() {
-    this.get('store').rollbackAttributes(this);
-    this.get('store').rollbackRelationships(this);
+    this.get('store').rollback(this);
   },
 
   destroy: function() {
