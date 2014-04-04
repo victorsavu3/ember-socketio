@@ -10,12 +10,12 @@ DS.BooleanTransform = DS.Transform.create({
   },
 
   serialize: function(deserialized) {
-    if(_.isBoolean(serialized)) {
-      return serialized;
+    if(_.isBoolean(deserialized)) {
+      return deserialized;
     } else {
       Ember.assert("attribute can not be correctly converted to boolean", _.isString(deserialized));
 
-      return serialized === "true";
+      return deserialized === "true";
     }
   },
 
