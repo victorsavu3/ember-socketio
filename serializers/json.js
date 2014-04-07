@@ -5,7 +5,12 @@ DS.JSONSerializer = DS.Serializer.extend({
     serialized.id = record.get('id');
 
     _.each(record._attributes, function(attribute) {
-      serialized[attribute.type.key] = attribute.unload();
+      if(_.isUndefined(attribute.get('getValue'))) {
+        serialized[attribute.type.key] = null;
+      } else {
+        serialized[attribute.type.key] = attribute.unload();
+      }
+
     });
 
     _.each(record._relationships, function(relationship) {
@@ -15,6 +20,10 @@ DS.JSONSerializer = DS.Serializer.extend({
         serialized[relationship.type.key] = relationship.get('getIds');
       } else {
         throw new Ember.Error("Unknown relationship type " + relationship.type.kind);
+      }
+
+      if(_.isUndefined(serialized[relationship.type.key])) {
+        serialized[relationship.type.key] = null;
       }
     });
 

@@ -27,6 +27,16 @@ Ember.onLoad('Ember.Application', function(Application) {
   });
 
   Application.initializer({
+    name: "serializers",
+    before: "store",
+
+    initialize: function(container, application) {
+      application.register('serializer:json', DS.JSONSerializer);
+      application.register('serializer:delta', DS.JSONDeltaSerializer);
+    }
+  });
+
+  Application.initializer({
     name: "adapter",
     before: "store",
 

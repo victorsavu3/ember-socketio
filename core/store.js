@@ -33,14 +33,21 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
     delete map[id];
   },
 
-  lookup: function(type, name) {
+  lookup: function(type, name, instance) {
     if(_.isString(name)) {
       this[type] = this[type] | {};
       if(this[type][name]){
         return this[type][name];
       } else {
         var normalized = this.container.normalize(type + ':' + name);
-        var lookup = this.container.lookupFactory(normalized);
+        var lookup;
+
+        if(instance) {
+          lookup = this.container.lookup(normalized);
+        } else {
+          lookup = this.container.lookupFactory(normalized);
+        }
+
         if (!lookup) { throw new Ember.Error("No " + type + " was found for '" + name + "'"); }
 
         // add useful properties
@@ -68,7 +75,7 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
   },
 
   getSerializer: function(name) {
-    return this.lookup('serializer', name);
+    return this.lookup('serializer', name, true);
   },
 
   getAdapter: function(name) {
@@ -113,6 +120,10 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
 
   serialize: function(record) {
     return record.constructor.serializer.serialize(this, record);
+  },
+
+  json: function(record) {
+    return this.getSerializer('json').serialize(this, record);
   },
 
   load: function(record, data) {
