@@ -440,6 +440,7 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
       return record.constructor.adapter.createRecord(this, record.constructor, record).then(function(data) {
         self.load(record, data);
         self.rollback(record);
+        self.addToCache(record.constructor, record);
         record.set('isSaved', true);
         record.set('isNew', false);
         return record;
