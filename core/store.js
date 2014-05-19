@@ -10,7 +10,7 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
 
     this.cache[guid] = this.cache[guid] ||Ember.A([]);
 
-    return this.cache[guid]
+    return this.cache[guid];
   },
 
   addToCache: function(type, object) {
@@ -71,7 +71,7 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
   },
 
   getModel: function(name) {
-    return this.lookup('model', name)
+    return this.lookup('model', name);
   },
 
   getSerializer: function(name) {
@@ -89,7 +89,7 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
     if(_.isArray(id)) {
       return id.map(function(rid){
         return self.loadFromCache(type, rid);
-      })
+      });
     } else if(_.isString(id) || _.isNumber(id)){
       return this.loadFromCache(type, id);
     } else {
@@ -133,8 +133,8 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
   push: function(type, data, internal) {
     type = this.getModel(type);
 
+    var self = this;
     if(_.isArray(data)) {
-      var self = this;
       return Ember.RSVP.all(_.map(data, function(element) {
         return self.push(type, element, internal);
       }));
@@ -149,7 +149,6 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
       } else {
         record = this.deserialize(type, data);
 
-        var self = this;
         return this.fetchAllRequired(record).then(function() {
           var nrecord = self.getRecord(type, data.id);
           if(nrecord) {
@@ -330,7 +329,7 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
         total: type.Pagination.total,
         sort_by: type.Pagination.sort_by,
         ascending: type.Pagination.ascending
-      })
+      });
     });
 
     return Ember.RSVP.resolve(promise, "find fetching page (" + page + '@' + per_page + ')');
@@ -389,7 +388,7 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
             content: data,
             store: self,
             type: type
-          })
+          });
         });
 
         return Ember.RSVP.resolve(promise, "find loading all records from cache");
@@ -399,7 +398,7 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
             content: data,
             store: self,
             type: type
-          })
+          });
         });
 
         return Ember.RSVP.resolve(promise, "find fetching all records");
