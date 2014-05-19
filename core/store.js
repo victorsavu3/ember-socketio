@@ -104,6 +104,17 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
     this.trigger('record:' + record.constructor.typeKey + ':destroy', record);
   },
 
+  reload: function(type, data) {
+    type = this.getModel(type);
+
+    var id = data;
+    if(_.isObject(data)) {
+      id = data.id;
+    }
+
+    this.fetch(type, id);
+  },
+
   rollback: function(record) {
     this.rollbackRelationships(record);
     this.rollbackAttributes(record);
@@ -240,17 +251,25 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
       if(existing && existing.promise) {
         return Ember.RSVP.resolve(existing.promise, "record fetch already in progress");
       } else {
-        var record = this.constructRecord(type);
+        var record;
 
-        record.set('id', query);
-        this.addToCache(type, record);
+        if(existing) {
+          record = existing;
+        } else {
+          record = this.constructRecord(type);
+
+          record.set('id', query);
+          this.addToCache(type, record);
+        }
 
         promise = type.adapter.find(this, type, query).then(function(data) {
           self.load(record, data);
 
           return record;
         }, function(err) {
-          self.removeFromCache(type, query);
+          if(!existing) {
+            self.removeFromCache(type, query);
+          }
           throw err;
         })['finally'](function(){
           delete record.promise;
@@ -380,7 +399,13 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
 
       if(existing) return Ember.RSVP.resolve(existing, "find returning cached record (single)");
 
-      return Ember.RSVP.resolve(this.fetch(type, query), "find fetching record (single)");
+      return Ember.RSVP.resolve(this.fetch(type, query).then(
+        function(record) {
+          self.trigger('record:create', record);
+          self.trigger('record:' + record.constructor.typeKey + ':create', record);
+
+          return record;
+        }), "find fetching record (single)");
     } else if(_.isUndefined(query)) {
       if(type.allLoaded) {
         promise = Ember.RSVP.resolve(this.all(type)).then(function(data) {
