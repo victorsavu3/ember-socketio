@@ -12,10 +12,10 @@ DS.UpdateInterceptor = Ember.ArrayProxy.extend(DS.PromiseArrayForward, {
       objects.reverseObjects();
       objects.forEach(function(object) {
         array.insertAt(idx, object);
-      })
+      });
     }
 
-    self.setValue(array);
+    this.setValue(array);
   }
 });
 
@@ -103,7 +103,7 @@ DS.HasManyRelationship = DS.Relationship.extend({
     var self = this;
     return DS.UpdateInterceptor.create({
       content: self.get('valueReal')
-    })
+    });
   }.property('valueReal', 'isDirty'),
 
   load: function(value) {
