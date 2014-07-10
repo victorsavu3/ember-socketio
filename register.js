@@ -55,6 +55,7 @@ Ember.onLoad('Ember.Application', function(Application) {
       application.inject('route', 'store', 'store:main');
       application.inject('serializer', 'store', 'store:main');
       application.inject('adapter', 'store', 'store:main');
+      application.inject('component', 'store', 'store:main');
     }
   });
 
