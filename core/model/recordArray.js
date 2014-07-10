@@ -14,8 +14,7 @@ DS.RecordArray = Ember.ArrayProxy.extend({
   }.property('total', 'per_page'),
 
   arrangedContent: function() {
-    if(this.get('page')) {
-      var page = this.get('page') - 1;
+    if(this.get('page') === 1) {
       var total = this.get('total');
       var per_page = this.get('per_page');
 
@@ -34,7 +33,7 @@ DS.RecordArray = Ember.ArrayProxy.extend({
         ret = ret.reverse();
       }
 
-      return ret.slice(page * per_page, (page + 1) * per_page);
+      return ret.slice(0, per_page);
     } else {
       return this.get('content');
     }
@@ -56,7 +55,9 @@ DS.RecordArray = Ember.ArrayProxy.extend({
 
     store.on('record:' + type + ':create', function(record) {
       if((_.isUndefined(filter) || filter(self, record)) && !content.contains(record)) {
-        content.pushObject(record);
+        if(this.get('page') === 1) {
+          content.pushObject(record);
+        }
       }
     });
 

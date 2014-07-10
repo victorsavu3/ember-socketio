@@ -329,16 +329,19 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
     });
   },
 
-  findPage: function(type, per_page, page) {
+  findPage: function(type, per_page, page, query) {
     type = this.getModel(type);
     var self = this;
 
     Ember.assert("Pagination information not available", type.Pagination);
 
-    var promise = this.find(type, {
+    var paginated_query = _.clone(query) || {};
+    _.extend(paginated_query, {
       page_no: page,
       per_page: per_page
-    }).then(function(data) {
+    });
+
+    var promise = this.find(type, paginated_query).then(function(data) {
       return DS.RecordArray.create({
         content: data,
         store: self,
