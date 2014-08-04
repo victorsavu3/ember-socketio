@@ -6,5 +6,6 @@ DS.PromiseArrayForward = Ember.Mixin.create({
   isPending: Ember.computed.alias('content.isPending'),
   isSettled: Ember.computed.alias('content.isSettled'),
   isRejected: Ember.computed.alias('content.isRejected'),
-  reason: Ember.computed.alias('content.reason')
+  reason: Ember.computed.alias('content.reason'),
+  promise: Ember.computed.alias('content.promise')
 });

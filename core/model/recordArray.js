@@ -1,4 +1,4 @@
-DS.RecordArray = Ember.ArrayProxy.extend({
+DS.RecordArray = Ember.ArrayProxy.extend(DS.PromiseArrayForward, {
   total_pages: function() {
     var total = this.get('total');
     var per_page = this.get('per_page');
