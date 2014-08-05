@@ -97,6 +97,18 @@ DS.Model.reopen({
     this.set('_relationships', relationships);
   },
 
+  getRawRelationship: function(key) {
+    var relationship = this.get('_relationships')[key];
+
+    if(relationship.type.kind === 'belongsTo') {
+      return relationship.get('getId');
+    } else if(relationship.type.kind === 'hasMany') {
+      return relationship.get('getIds');
+    } else {
+      throw new Ember.Error("Unknown kind " + relationship.kind);
+    }
+  },
+
   dirtyUpdate: function() {
     this.notifyPropertyChange('relationshipsDirty');
   },
