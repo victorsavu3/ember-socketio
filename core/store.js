@@ -33,6 +33,7 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
     delete map[id];
   },
 
+  // helper for Ember lookups
   lookup: function(type, name, instance) {
     if(_.isString(name)) {
       this[type] = this[type] | {};
@@ -82,6 +83,7 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
     return this.getModel(name).adapter;
   },
 
+  // load from cache
   getRecord: function(type, id) {
     type = this.getModel(type);
     var self = this;
@@ -183,6 +185,7 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
     }
   },
 
+  // used for sync relationships
   fetchAllRequired: function(record) {
     var self = this;
     var promises = [];
@@ -224,6 +227,7 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
     });
   },
 
+  // call adapter
   fetch: function(type, query) {
     type = this.getModel(type);
     var promise;
@@ -357,6 +361,7 @@ DS.Store = Ember.Object.extend(Ember.Evented, {
     return Ember.RSVP.resolve(promise, "find fetching page (" + page + '@' + per_page + ')');
   },
 
+  // load from the cache if possible, the adapter otherwise
   find: function(type, query) {
     type = this.getModel(type);
     var existing, promise;

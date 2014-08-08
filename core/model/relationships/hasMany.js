@@ -1,3 +1,4 @@
+// intercept operations on the relationship array
 DS.UpdateInterceptor = Ember.ArrayProxy.extend(DS.PromiseArrayForward, {
   replaceContent: function(idx, amt, objects) {
     var array = [];
@@ -19,6 +20,9 @@ DS.UpdateInterceptor = Ember.ArrayProxy.extend(DS.PromiseArrayForward, {
   }
 });
 
+// saves data about a relationship field
+// ids - changed value
+// original - value from the adapter
 DS.HasManyRelationship = DS.Relationship.extend({
   getIds: function() {
     if(this.get('ids')) {

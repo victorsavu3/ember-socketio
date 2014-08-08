@@ -1,3 +1,4 @@
+// Must be implemented in order to make the store work
 DS.Adapter = Ember.Object.extend({
   callMany: function(store, type, entitys, what) {
     var promises = [];
@@ -32,4 +33,4 @@ DS.Adapter = Ember.Object.extend({
   deleteMany: function(store, type, ids) {
     return this.callMany(store, type, ids, this.deleteRecord);
   }
-})
+});

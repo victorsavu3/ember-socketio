@@ -1,3 +1,6 @@
+// saves data about a relationship field
+// id - changed value
+// original - value from the adapter
 DS.BelongsToRelationship = DS.Relationship.extend({
   getId: function() {
     if(this.get('id')) {
@@ -70,7 +73,7 @@ DS.BelongsToRelationship = DS.Relationship.extend({
   },
 
   rollback: function() {
-    this.set('id')
+    this.set('id');
   },
 
   notifyer:function(){

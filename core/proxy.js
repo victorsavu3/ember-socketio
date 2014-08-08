@@ -1,6 +1,7 @@
 DS.PromiseObject = Ember.ObjectProxy.extend(Ember.PromiseProxyMixin);
 DS.PromiseArray = Ember.ArrayProxy.extend(Ember.PromiseProxyMixin);
 
+// forwards for promises
 DS.PromiseArrayForward = Ember.Mixin.create({
   isFulfilled: Ember.computed.alias('content.isFulfilled'),
   isPending: Ember.computed.alias('content.isPending'),

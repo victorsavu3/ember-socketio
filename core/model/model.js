@@ -1,4 +1,6 @@
 DS.Model = Ember.Object.extend(Ember.Evented, {
+  // id is the primary key
+  // multiple or a different key is not supported
   id: null,
 
   save: function() {
@@ -10,8 +12,8 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
   },
 
   destroy: function() {
-    Ember.assert('Record is already destroyed', !this.get('isDeleted'))
-    this.set('isDeleted', true)
+    Ember.assert('Record is already destroyed', !this.get('isDeleted'));
+    this.set('isDeleted', true);
   },
 
   isDirty: function(){

@@ -1,3 +1,9 @@
+// Attributes are the properties of the model
+
+// This is used to store the actual value
+// original is the unmodified value
+// value is the modified value, null means the attribute is not modified
+// also supports default values
 DS.Attribute = Ember.Object.extend(Ember.Evented, {
   getValue: function() {
     if(!_.isUndefined(this.value)) {
@@ -10,6 +16,10 @@ DS.Attribute = Ember.Object.extend(Ember.Evented, {
   }.property('value', 'original'),
 
   valueProxy: function() {
+    var self = this;
+
+    // if returning JSON, we also need to track modifications to the object itself
+    // only the first level is tracked, more can be implemented later
     if(this.type.transform.typeKey === 'json') {
       if(this.get('value')) {
         return Ember.ObjectProxy.create({
@@ -19,7 +29,6 @@ DS.Attribute = Ember.Object.extend(Ember.Evented, {
         });
       }
 
-      var self = this;
       return Ember.Object.create({
         content: this.get('getValue'),
 
@@ -46,9 +55,9 @@ DS.Attribute = Ember.Object.extend(Ember.Evented, {
 
           return value;
         }
-      })
+      });
+      // if returning an array, we also need to track modifications to the array
     } else if(this.type.transform.typeKey === 'array') {
-      var self = this;
       return Ember.ArrayProxy.create({
         content: self.get('getValue'),
 
@@ -65,7 +74,7 @@ DS.Attribute = Ember.Object.extend(Ember.Evented, {
             objects.reverseObjects();
             objects.forEach(function(object) {
               array.insertAt(idx, object);
-            })
+            });
           }
 
           self.setValue(array);
@@ -112,6 +121,8 @@ DS.Attribute = Ember.Object.extend(Ember.Evented, {
   }.property('value')
 });
 
+
+// returns a computed property that forwards requests to a Attribute instance
 DS.attr = function(type, options) {
   var meta = {
     type: type,
@@ -137,7 +148,7 @@ DS.attr = function(type, options) {
       return value;
     }
   }).meta(meta);
-}
+};
 
 DS.Model.reopenClass({
   attributes: Ember.computed(function() {
@@ -193,7 +204,7 @@ DS.Model.reopen({
     });
     return dirty;
   }).property()
-})
+});
 
 DS.Store.reopen({
   loadAttributes: function(record, data) {

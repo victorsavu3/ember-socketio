@@ -1,3 +1,5 @@
+// Listens to updates from the server and updates accordingly
+// Updates on pages other than 1 are ignored, can be implemented later
 DS.RecordArray = Ember.ArrayProxy.extend(DS.PromiseArrayForward, {
   total_pages: function() {
     var total = this.get('total');

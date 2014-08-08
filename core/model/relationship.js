@@ -26,6 +26,7 @@ DS.Model.reopenClass({
   })
 });
 
+// polymorphic types are shared between belongsTo and hasMany
 DS.Relationship = Ember.Object.extend(Ember.Evented, {
   rollback: Ember.required(Function),
 

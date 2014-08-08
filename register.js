@@ -2,6 +2,7 @@ require('scripts/data/main')
 require('scripts/data/adapters/*')
 require('scripts/data/serializers/*')
 
+// magic initialization
 Ember.onLoad('Ember.Application', function(Application) {
   Application.initializer({
     name: "store",
