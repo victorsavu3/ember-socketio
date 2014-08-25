@@ -23,7 +23,7 @@ DS.Model.reopenClass({
     });
 
     return relationships;
-  })
+  }).volatile()
 });
 
 // polymorphic types are shared between belongsTo and hasMany

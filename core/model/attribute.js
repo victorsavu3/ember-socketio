@@ -169,7 +169,7 @@ DS.Model.reopenClass({
     });
 
     return attributes;
-  })
+  }).volatile()
 });
 
 DS.Model.reopen({
